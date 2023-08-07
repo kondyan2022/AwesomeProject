@@ -22,7 +22,7 @@ export default function App() {
   if (!fontIsLoaded) {
     return;
   }
-  // return <RegistrationScreen />;
+  return <RegistrationScreen />;
   // return <LoginScreen />;
-  return <PostsScreen />;
+  // return <PostsScreen />;
 }

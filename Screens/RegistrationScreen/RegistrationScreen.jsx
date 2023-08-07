@@ -20,6 +20,9 @@ const RegistrationScreen = () => {
   const [loginIsActive, setLoginIsActive] = useState(false);
   const [emailIsActive, setEmailIsActive] = useState(false);
   const [passwordIsActive, setPasswordIsActive] = useState(false);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -89,8 +92,13 @@ const RegistrationScreen = () => {
                 onBlur={() => {
                   setLoginIsActive(false);
                 }}
+                onChangeText={(text) => {
+                  setLogin(text);
+                }}
+                value={login}
               />
               <TextInput
+                keyboardType="email-address"
                 style={[
                   styles.input,
                   { borderColor: emailIsActive ? "#FF6C00" : "#E8E8E8" },
@@ -103,6 +111,10 @@ const RegistrationScreen = () => {
                 onBlur={() => {
                   setEmailIsActive(false);
                 }}
+                onChangeText={(text) => {
+                  setEmail(text);
+                }}
+                value={email}
               />
               <View>
                 <TextInput
@@ -119,6 +131,10 @@ const RegistrationScreen = () => {
                   onBlur={() => {
                     setPasswordIsActive(false);
                   }}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                  }}
+                  value={password}
                 />
                 <TouchableOpacity style={[styles.btnShowPassword]}>
                   <Text
@@ -129,21 +145,17 @@ const RegistrationScreen = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity style={[styles.btn]}>
-                <Text
-                  style={styles.btnText}
-                  onPress={() => console.log(Platform.OS)}
-                >
-                  Зареєструватися
-                </Text>
+              <TouchableOpacity
+                style={[styles.btn]}
+                onPress={() => console.log({ login, email, password })}
+              >
+                <Text style={styles.btnText}>Зареєструватися</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btnToLogin]}>
-                <Text
-                  style={styles.btnToLoginText}
-                  onPress={() => console.log(Platform.OS)}
-                >
-                  Вже є акаунт? Увійти
-                </Text>
+              <TouchableOpacity
+                style={[styles.btnToLogin]}
+                onPress={() => console.log("Перехід до Логін")}
+              >
+                <Text style={styles.btnToLoginText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>

@@ -19,6 +19,8 @@ const LoginScreen = () => {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
   const [loginIsActive, setLoginIsActive] = useState(false);
   const [passwordIsActive, setPasswordIsActive] = useState(false);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -79,6 +81,10 @@ const LoginScreen = () => {
                 onBlur={() => {
                   setLoginIsActive(false);
                 }}
+                onChangeText={(text) => {
+                  setLogin(text);
+                }}
+                value={login}
               />
 
               <View>
@@ -96,6 +102,10 @@ const LoginScreen = () => {
                   onBlur={() => {
                     setPasswordIsActive(false);
                   }}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                  }}
+                  value={password}
                 />
                 <TouchableOpacity style={[styles.btnShowPassword]}>
                   <Text
@@ -106,23 +116,19 @@ const LoginScreen = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity style={[styles.btn]}>
-                <Text
-                  style={styles.btnText}
-                  onPress={() => console.log(Platform.OS)}
-                >
-                  Увійти
-                </Text>
+              <TouchableOpacity
+                style={[styles.btn]}
+                onPress={() => console.log({ login, password })}
+              >
+                <Text style={styles.btnText}>Увійти</Text>
               </TouchableOpacity>
               <View style={styles.toSignUpWrapper}>
                 <Text style={[styles.toSignUpLabel]}>Немає акаунту?</Text>
-                <TouchableOpacity style={[styles.btnToSignUp]}>
-                  <Text
-                    style={styles.btnToSignUpText}
-                    onPress={() => console.log(Platform.OS)}
-                  >
-                    Зареєструватися
-                  </Text>
+                <TouchableOpacity
+                  style={[styles.btnToSignUp]}
+                  onPress={() => console.log("Перехід до реєстрації")}
+                >
+                  <Text style={styles.btnToSignUpText}>Зареєструватися</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -144,8 +150,6 @@ const styles = StyleSheet.create({
   },
   form: {
     resizeMode: "cover",
-    // height: 549,
-    // flex: 1,
     backgroundColor: "white",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
