@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { PublicationCard } from "../Components/PublicationCard";
+import { PublicationCard } from "../../Components/PublicationCard";
 import { nanoid } from "react";
 const user = {
   name: "Nataliya Romanova",

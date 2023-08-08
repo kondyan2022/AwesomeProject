@@ -13,6 +13,8 @@ import {
 import BackgroundImage from "../../assets/img/bgimage.jpg";
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import validateForm from "../../utils/validateForm";
+import validationSchema from "./validationSchema";
 
 const LoginScreen = () => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -21,6 +23,7 @@ const LoginScreen = () => {
   const [passwordIsActive, setPasswordIsActive] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [currentErrors, setCurrentErrors] = useState({});
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -41,6 +44,15 @@ const LoginScreen = () => {
       hideSubscription.remove();
     };
   }, []);
+
+  const handleSubmit = () => {
+    validateForm(
+      { login, password },
+      validationSchema,
+      setCurrentErrors,
+      console.log
+    );
+  };
 
   return (
     <TouchableWithoutFeedback
@@ -72,11 +84,17 @@ const LoginScreen = () => {
                 style={[
                   styles.input,
                   { borderColor: loginIsActive ? "#FF6C00" : "#E8E8E8" },
+                  {
+                    backgroundColor: currentErrors.login
+                      ? "#ff000030"
+                      : "#F6F6F6",
+                  },
                 ]}
                 placeholder="Логін"
                 placeholderTextColor={"#BDBDBD"}
                 onFocus={() => {
                   setLoginIsActive(true);
+                  setCurrentErrors({});
                 }}
                 onBlur={() => {
                   setLoginIsActive(false);
@@ -86,18 +104,27 @@ const LoginScreen = () => {
                 }}
                 value={login}
               />
+              {currentErrors.login && (
+                <Text style={styles.errorText}>{currentErrors.login}</Text>
+              )}
 
               <View>
                 <TextInput
                   style={[
                     styles.input,
                     { borderColor: passwordIsActive ? "#FF6C00" : "#E8E8E8" },
+                    {
+                      backgroundColor: currentErrors.password
+                        ? "#ff000030"
+                        : "#F6F6F6",
+                    },
                   ]}
                   placeholder="Пароль"
                   placeholderTextColor={"#BDBDBD"}
                   secureTextEntry={!passwordIsVisible}
                   onFocus={() => {
                     setPasswordIsActive(true);
+                    setCurrentErrors({});
                   }}
                   onBlur={() => {
                     setPasswordIsActive(false);
@@ -107,6 +134,10 @@ const LoginScreen = () => {
                   }}
                   value={password}
                 />
+                {currentErrors.password && (
+                  <Text style={styles.errorText}>{currentErrors.password}</Text>
+                )}
+
                 <TouchableOpacity style={[styles.btnShowPassword]}>
                   <Text
                     style={styles.btnShowPasswordText}
@@ -116,10 +147,7 @@ const LoginScreen = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={[styles.btn]}
-                onPress={() => console.log({ login, password })}
-              >
+              <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
                 <Text style={styles.btnText}>Увійти</Text>
               </TouchableOpacity>
               <View style={styles.toSignUpWrapper}>
@@ -251,6 +279,15 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     textDecorationLine: "underline",
     color: "#1B4371",
+  },
+  errorText: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 10,
+    marginTop: -16,
+    lineHeight: 12,
+    marginBottom: 4,
+    marginHorizontal: 16,
+    color: "#ff0000",
   },
 });
 

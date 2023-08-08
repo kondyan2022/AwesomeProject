@@ -13,6 +13,8 @@ import {
 import BackgroundImage from "../../assets/img/bgimage.jpg";
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import validationSchema from "./validationSchema";
+import validateForm from "../../utils/validateForm";
 
 const RegistrationScreen = () => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -23,6 +25,7 @@ const RegistrationScreen = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [currentErrors, setCurrentErrors] = useState({});
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -44,17 +47,24 @@ const RegistrationScreen = () => {
     };
   }, []);
 
+  const handleSubmit = () => {
+    validateForm(
+      { login, email, password },
+      validationSchema,
+      setCurrentErrors,
+      console.log
+    );
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        console.log("Keyboard.dismiss");
         Keyboard.dismiss();
       }}
     >
       <View style={styles.container}>
         <ImageBackground source={BackgroundImage} style={styles.image}>
           <KeyboardAvoidingView
-            // behavior={"padding"}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View
@@ -83,57 +93,75 @@ const RegistrationScreen = () => {
                 style={[
                   styles.input,
                   { borderColor: loginIsActive ? "#FF6C00" : "#E8E8E8" },
+                  {
+                    backgroundColor: currentErrors.login
+                      ? "#ff000030"
+                      : "#F6F6F6",
+                  },
                 ]}
                 placeholder="Логін"
                 placeholderTextColor={"#BDBDBD"}
                 onFocus={() => {
                   setLoginIsActive(true);
+                  setCurrentErrors({});
                 }}
                 onBlur={() => {
                   setLoginIsActive(false);
                 }}
-                onChangeText={(text) => {
-                  setLogin(text);
-                }}
+                onChangeText={setLogin}
                 value={login}
               />
+              {currentErrors.login && (
+                <Text style={styles.errorText}>{currentErrors.login}</Text>
+              )}
               <TextInput
                 keyboardType="email-address"
                 style={[
                   styles.input,
                   { borderColor: emailIsActive ? "#FF6C00" : "#E8E8E8" },
+                  {
+                    backgroundColor: currentErrors.email
+                      ? "#ff000030"
+                      : "#F6F6F6",
+                  },
                 ]}
                 placeholder="Адреса електронної пошти"
                 placeholderTextColor={"#BDBDBD"}
                 onFocus={() => {
                   setEmailIsActive(true);
+                  setCurrentErrors({});
                 }}
                 onBlur={() => {
                   setEmailIsActive(false);
                 }}
-                onChangeText={(text) => {
-                  setEmail(text);
-                }}
+                onChangeText={setEmail}
                 value={email}
               />
+              {currentErrors.email && (
+                <Text style={styles.errorText}>{currentErrors.email}</Text>
+              )}
               <View>
                 <TextInput
                   style={[
                     styles.input,
                     { borderColor: passwordIsActive ? "#FF6C00" : "#E8E8E8" },
+                    {
+                      backgroundColor: currentErrors.password
+                        ? "#ff000030"
+                        : "#F6F6F6",
+                    },
                   ]}
                   placeholder="Пароль"
                   placeholderTextColor={"#BDBDBD"}
                   secureTextEntry={!passwordIsVisible}
                   onFocus={() => {
                     setPasswordIsActive(true);
+                    setCurrentErrors({});
                   }}
                   onBlur={() => {
                     setPasswordIsActive(false);
                   }}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                  }}
+                  onChangeText={setPassword}
                   value={password}
                 />
                 <TouchableOpacity style={[styles.btnShowPassword]}>
@@ -145,10 +173,10 @@ const RegistrationScreen = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={[styles.btn]}
-                onPress={() => console.log({ login, email, password })}
-              >
+              {currentErrors.password && (
+                <Text style={styles.errorText}>{currentErrors.password}</Text>
+              )}
+              <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
                 <Text style={styles.btnText}>Зареєструватися</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -176,8 +204,6 @@ const styles = StyleSheet.create({
   },
   form: {
     resizeMode: "cover",
-    // height: 549,
-    // flex: 1,
     backgroundColor: "white",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -257,6 +283,15 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     color: "#1B4371",
     lineHeight: 19,
+  },
+  errorText: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 10,
+    marginTop: -16,
+    lineHeight: 12,
+    marginBottom: 4,
+    marginHorizontal: 16,
+    color: "#ff0000",
   },
 });
 
