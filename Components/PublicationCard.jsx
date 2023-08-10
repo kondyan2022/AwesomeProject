@@ -6,6 +6,9 @@ export const PublicationCard = ({
   imageUrl,
   geoPosition,
   commentsCount,
+  likesCount,
+  messageIcon,
+  thumbsIcon,
 }) => {
   return (
     <View style={styles.container}>
@@ -15,9 +18,17 @@ export const PublicationCard = ({
       />
       <Text style={styles.cardTitle}>{title}</Text>
       <View style={styles.cardInfo}>
-        <View style={[styles.cardInfoBox, { gap: 6 }]}>
-          <Feather name="message-circle" size={24} color="#BDBDBD" />
-          <Text style={styles.countText}>{commentsCount}</Text>
+        <View style={{ flexDirection: "row", gap: 24 }}>
+          <View style={[styles.cardInfoBox, { gap: 6 }]}>
+            <Feather name="message-circle" size={24} {...messageIcon} />
+            <Text style={styles.countText}>{commentsCount}</Text>
+          </View>
+          {likesCount && (
+            <View style={[styles.cardInfoBox, { gap: 6 }]}>
+              <Feather name="thumbs-up" size={24} {...thumbsIcon} />
+              <Text style={styles.countText}>{likesCount}</Text>
+            </View>
+          )}
         </View>
         <View style={styles.cardInfoBox}>
           <Feather name="map-pin" size={24} color="#BDBDBD" />
@@ -50,6 +61,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textDecorationLine: "underline",
     color: "#212121",
+    marginLeft: "auto",
   },
   countText: {
     fontSize: 16,

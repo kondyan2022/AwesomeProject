@@ -11,12 +11,14 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import BackgroundImage from "../../assets/img/bgimage.jpg";
-import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import validateForm from "../../utils/validateForm";
+import validateForm from "../../../utils/validateForm";
 import validationSchema from "./validationSchema";
+import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
+
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
   const [loginIsActive, setLoginIsActive] = useState(false);
@@ -45,15 +47,25 @@ const LoginScreen = () => {
     };
   }, []);
 
+  const reset = () => {
+    setLogin("");
+    setPassword("");
+  };
+
   const handleSubmit = () => {
     validateForm(
       { login, password },
       validationSchema,
       setCurrentErrors,
-      console.log
+      (data) => {
+        console.log(data);
+        console.log("Переход на Home");
+        reset();
+        navigation.navigate("Home");
+      }
     );
   };
-
+  console.log({ Kbd: isKeyboardVisible, OS: Platform.OS });
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -63,8 +75,9 @@ const LoginScreen = () => {
       <View style={styles.container}>
         <ImageBackground source={BackgroundImage} style={styles.image}>
           <KeyboardAvoidingView
-            // behavior={"padding"}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={"padding"}
+            enabled={Platform.OS === "ios"}
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View
               style={[
@@ -72,8 +85,11 @@ const LoginScreen = () => {
                 {
                   transform: [
                     {
-                      translateY:
-                        isKeyboardVisible && Platform.OS === "ios" ? 241 : 0,
+                      translateY: isKeyboardVisible
+                        ? Platform.OS === "ios"
+                          ? 241
+                          : 241
+                        : 0,
                     },
                   ],
                 },
@@ -154,7 +170,10 @@ const LoginScreen = () => {
                 <Text style={[styles.toSignUpLabel]}>Немає акаунту?</Text>
                 <TouchableOpacity
                   style={[styles.btnToSignUp]}
-                  onPress={() => console.log("Перехід до реєстрації")}
+                  onPress={() => {
+                    console.log("Перехід до реєстрації");
+                    navigation.navigate("Signup");
+                  }}
                 >
                   <Text style={styles.btnToSignUpText}>Зареєструватися</Text>
                 </TouchableOpacity>

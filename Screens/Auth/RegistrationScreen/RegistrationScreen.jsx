@@ -14,9 +14,11 @@ import BackgroundImage from "../../assets/img/bgimage.jpg";
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import validationSchema from "./validationSchema";
-import validateForm from "../../utils/validateForm";
+import validateForm from "../../../utils/validateForm";
+import { useNavigation } from "@react-navigation/native";
 
 const RegistrationScreen = () => {
+  const navigation = useNavigation();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
   const [loginIsActive, setLoginIsActive] = useState(false);
@@ -47,12 +49,22 @@ const RegistrationScreen = () => {
     };
   }, []);
 
+  const reset = () => {
+    setLogin("");
+    setEmail("");
+    setPassword("");
+  };
+
   const handleSubmit = () => {
     validateForm(
       { login, email, password },
       validationSchema,
       setCurrentErrors,
-      console.log
+      (data) => {
+        console.log(data);
+        reset();
+        navigation.navigate("Home");
+      }
     );
   };
 
@@ -65,7 +77,9 @@ const RegistrationScreen = () => {
       <View style={styles.container}>
         <ImageBackground source={BackgroundImage} style={styles.image}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={"padding"}
+            enabled={Platform.OS === "ios"}
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View
               style={[
@@ -76,7 +90,7 @@ const RegistrationScreen = () => {
                       translateY: isKeyboardVisible
                         ? Platform.OS === "ios"
                           ? 175
-                          : -84
+                          : 175
                         : 0,
                     },
                   ],
@@ -181,7 +195,10 @@ const RegistrationScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.btnToLogin]}
-                onPress={() => console.log("Перехід до Логін")}
+                onPress={() => {
+                  console.log("Перехід до Логін");
+                  navigation.navigate("Login");
+                }}
               >
                 <Text style={styles.btnToLoginText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
