@@ -10,14 +10,16 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import BackgroundImage from "../../assets/img/bgimage.jpg";
+import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import validationSchema from "./validationSchema";
 import validateForm from "../../../utils/validateForm";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../redux/authSlice";
 
-const RegistrationScreen = () => {
+const RegistrationScreen = ({ onAuth }) => {
   const navigation = useNavigation();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
@@ -28,6 +30,8 @@ const RegistrationScreen = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [currentErrors, setCurrentErrors] = useState({});
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -63,7 +67,8 @@ const RegistrationScreen = () => {
       (data) => {
         console.log(data);
         reset();
-        navigation.navigate("Home");
+        dispatch(setIsAuth(true));
+        // navigation.navigate("Home");
       }
     );
   };

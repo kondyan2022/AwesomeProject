@@ -1,6 +1,6 @@
-import RegistrationScreen from "./Screens/Auth/RegistrationScreen/RegistrationScreen";
-import LoginScreen from "./Screens/Auth/LoginScreen/LoginScreen";
-import PostsScreen from "./Screens/Home/PostsScreen";
+import RegistrationScreen from "./RegistrationScreen/RegistrationScreen";
+import LoginScreen from "./LoginScreen/LoginScreen";
+// import PostsScreen from "./Screens/Home/PostsScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 
 const AuthStack = createStackNavigator();
@@ -16,11 +16,6 @@ const Auth = () => {
       options={{ headerShown: false }}
       name="Signup"
       component={RegistrationScreen}
-    />
-    <AuthStack.Screen
-      options={{ headerShown: false }}
-      name="Home"
-      component={PostsScreen}
     />
   </AuthStack.Navigator>;
 };

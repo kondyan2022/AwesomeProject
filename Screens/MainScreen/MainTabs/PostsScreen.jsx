@@ -8,21 +8,24 @@ import {
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { PublicationCard } from "../../Components/PublicationCard";
-import { notes, user } from "../../testdata";
+import { PublicationCard } from "../../../Components/PublicationCard";
+import { notes, user } from "../../../testdata";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../redux/authSlice";
 
-const PostsScreen = () => {
+const PostsScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   return (
     <SafeAreaView
-      style={[styles.container, { marginTop: Platform.OS === "ios" ? 0 : 30 }]}
+      style={[styles.container, { paddingTop: Platform.OS === "ios" ? 0 : 30 }]}
     >
       <View style={styles.header}>
         <Text style={styles.headerTitile}>Публікації</Text>
         <TouchableOpacity
           style={styles.btnLogOut}
           onPress={() => {
-            console.log("Перехід до Логін");
-            // navigation.navigate("Login");
+            dispatch(setIsAuth(false));
           }}
         >
           <Feather name="log-out" size={24} color="#BDBDBD" />
@@ -43,11 +46,13 @@ const PostsScreen = () => {
           {notes.map(({ id, title, imageUrl, geoPosition, commentsCount }) => (
             <PublicationCard
               key={id}
+              id={id}
               title={title}
               imageUrl={imageUrl}
               geoPosition={geoPosition}
               commentsCount={commentsCount}
               messageIcon={{ color: "#BDBDBD", backgroundColor: "transparent" }}
+              navigation={navigation}
             />
           ))}
         </ScrollView>
@@ -57,9 +62,14 @@ const PostsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   header: {
+    // flex: 1,
     width: "100%",
+    height: 44,
     flexDirection: "row",
     justifyContent: "center",
     borderBottomWidth: 1,
@@ -80,8 +90,15 @@ const styles = StyleSheet.create({
     right: 16,
     bottom: 10,
   },
-  main: { flexGrow: 1, paddingHorizontal: 16, alignItems: "center" },
-  listView: { height: 0 },
+  main: {
+    flex: 1,
+    // height: 200,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  listView: {
+    // height: 200,
+  },
   image: { borderRadius: 16 },
   userCard: {
     flexDirection: "row",

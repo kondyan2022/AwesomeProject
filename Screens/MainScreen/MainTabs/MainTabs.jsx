@@ -1,22 +1,25 @@
-import { TouchableOpacity, StyleSheet, ImageBackground } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import "react-native-gesture-handler";
-import PostsScreen from "./PostsScreen";
-import ProfileScreen from "./ProfileScreen";
-import CreatePostsScreen from "./CreatePostsScreen";
+import { createStackNavigator } from "@react-navigation/stack";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-const MainTab = createBottomTabNavigator();
+import CreatePostsScreen from "./CreatePostsScreen";
+import ProfileScreen from "./ProfileScreen";
+import PostsScreen from "./PostsScreen";
 
-const Home = () => {
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const MainTabs = () => {
   return (
-    <MainTab.Navigator
+    <Tab.Navigator
       screenOptions={{
-        tabBarStyle: styles.tabBarStyle,
         headerShown: false,
+        tabBarStyle: styles.tabBarStyle,
       }}
     >
-      <MainTab.Screen
+      <Tab.Screen
+        name="PostsTab"
         options={{
           tabBarButton: (props) => (
             <TouchableOpacity {...props} style={styles.button}>
@@ -24,21 +27,24 @@ const Home = () => {
             </TouchableOpacity>
           ),
         }}
-        name="Posts"
         component={PostsScreen}
-      ></MainTab.Screen>
-      <MainTab.Screen
+      />
+
+      <Tab.Screen
+        name="CreateTab"
         options={{
           tabBarButton: (props) => (
             <TouchableOpacity {...props} style={styles.btnNew}>
               <Feather name="plus" size={24} color="#ffffff" />
             </TouchableOpacity>
           ),
+          tabBarStyle: { display: "none" },
         }}
-        name="Create"
         component={CreatePostsScreen}
-      ></MainTab.Screen>
-      <MainTab.Screen
+      />
+
+      <Tab.Screen
+        name="ProfileTab"
         options={{
           tabBarButton: (props) => (
             <TouchableOpacity {...props} style={styles.button}>
@@ -46,12 +52,13 @@ const Home = () => {
             </TouchableOpacity>
           ),
         }}
-        name="Profile"
         component={ProfileScreen}
-      ></MainTab.Screen>
-    </MainTab.Navigator>
+      />
+    </Tab.Navigator>
   );
 };
+
+export default MainTabs;
 
 const styles = StyleSheet.create({
   button: {
@@ -80,23 +87,3 @@ const styles = StyleSheet.create({
     columnGap: 31,
   },
 });
-
-export default Home;
-
-//   tabBar={(props) => {
-//     console.log(props);
-//     return (
-//       <View
-//         style={{
-//           backgroundColor: "#00ff00",
-//           flexDirection: "row",
-//           justifyContent: "center",
-//           paddingBottom: 34,
-//         }}
-//       >
-//         <TouchableOpacity {...props} style={styles.button}>
-//           <Feather name="plus" size={24} color="#ffffff" />
-//         </TouchableOpacity>
-//       </View>
-//     );
-//   }}

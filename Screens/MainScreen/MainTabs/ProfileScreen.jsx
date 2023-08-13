@@ -9,11 +9,15 @@ import {
 } from "react-native";
 
 import { Feather, AntDesign } from "@expo/vector-icons";
-import BackgroundImage from "../../assets/img/bgimage.jpg";
-import { notes, user } from "../../testdata";
-import { PublicationCard } from "../../Components/PublicationCard";
+import BackgroundImage from "../../../assets/img/bgimage.jpg";
+import { notes, user } from "../../../testdata";
+import { PublicationCard } from "../../../Components/PublicationCard";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../redux/authSlice";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -40,7 +44,7 @@ const ProfileScreen = () => {
           <TouchableOpacity
             style={styles.btnLogOut}
             onPress={() => {
-              console.log("Перехід до Логін");
+              dispatch(setIsAuth(false));
             }}
           >
             <Feather name="log-out" size={24} color="#BDBDBD" />
@@ -51,6 +55,7 @@ const ProfileScreen = () => {
               ({ id, title, imageUrl, geoPosition, commentsCount, likes }) => (
                 <PublicationCard
                   key={id}
+                  id={id}
                   title={title}
                   imageUrl={imageUrl}
                   geoPosition={geoPosition.split(" ").slice(-1)}
@@ -60,6 +65,7 @@ const ProfileScreen = () => {
                     color: "#FF6C00",
                   }}
                   thumbsIcon={{ color: "#FF6C00" }}
+                  navigation={navigation}
                 />
               )
             )}

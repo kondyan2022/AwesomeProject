@@ -1,5 +1,5 @@
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Image, StyleSheet, Text, View } from "react-native";
 
 export const PublicationCard = ({
   title,
@@ -9,6 +9,8 @@ export const PublicationCard = ({
   likesCount,
   messageIcon,
   thumbsIcon,
+  navigation,
+  id,
 }) => {
   return (
     <View style={styles.container}>
@@ -19,10 +21,16 @@ export const PublicationCard = ({
       <Text style={styles.cardTitle}>{title}</Text>
       <View style={styles.cardInfo}>
         <View style={{ flexDirection: "row", gap: 24 }}>
-          <View style={[styles.cardInfoBox, { gap: 6 }]}>
-            <Feather name="message-circle" size={24} {...messageIcon} />
-            <Text style={styles.countText}>{commentsCount}</Text>
-          </View>
+          <TouchableOpacity
+            onPress={() => {
+              return navigation.navigate("Comments", { id: id });
+            }}
+          >
+            <View style={[styles.cardInfoBox, { gap: 6 }]}>
+              <Feather name="message-circle" size={24} {...messageIcon} />
+              <Text style={styles.countText}>{commentsCount}</Text>
+            </View>
+          </TouchableOpacity>
           {likesCount && (
             <View style={[styles.cardInfoBox, { gap: 6 }]}>
               <Feather name="thumbs-up" size={24} {...thumbsIcon} />
@@ -30,10 +38,13 @@ export const PublicationCard = ({
             </View>
           )}
         </View>
-        <View style={styles.cardInfoBox}>
-          <Feather name="map-pin" size={24} color="#BDBDBD" />
-          <Text style={styles.locationText}>{geoPosition}</Text>
-        </View>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Map")}>
+          <View style={styles.cardInfoBox}>
+            <Feather name="map-pin" size={24} color="#BDBDBD" />
+            <Text style={styles.locationText}>{geoPosition}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

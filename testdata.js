@@ -34,3 +34,48 @@ export const notes = [
     likes: 200,
   },
 ];
+
+export const comments = [
+  {
+    id: 1,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/3413/4555/ee1d5e8149ec891d092dbb246ae04aec?Expires=1692576000&Signature=PIOiFgWM1iM9rAsq7i0CzAnY4bBMYrS~~wS4bLGVY7i4t4Zlabb-FYlTxZaFE24Di6YF9w-lI1U~k~EZNJ3OB-8mrnnTCxVgOXaZ0xRVjKdUZVrSUmcPdE~3FRc9shwznkM5qqwC2rH4UhbVexwR6SI5XjRg8hbbhHa9P7x8oVIS4xrfgDNfFhdx4rbkfTLMP7qWB8dhBV7rDpq8LLVcJcvSWlGR4Vi~WJREw4vzzqx2bDR28x2e4MWj1rWjs8NNs4xP6E2VAXTdB-GqN5IoGf04zx-F2n8jXsZ1iurImwpxB7biYCmGZhaCQ497jxq60Ahk46t7m5UyAyw7SUop-g__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "Really love your most recent photo. I’ve been trying to capture the same thing for a few months and would love some tips!",
+    date: "2020-06-09T08:40:00",
+  },
+  {
+    id: 2,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/d7eb/2439/565ee2bb708d7a3f27c90a7cd3c9f0fa?Expires=1692576000&Signature=JXLkqkobjU4C3WK3~4eU0EMuIXwoTgutLjJmqk2-YEvOdWwu~FMH3pX4qvqoMMRPg3mFJrVCT7PaB8jYweV4qrr0q1DvNRrIrzQK~~A0DG-z~mqkNOBj00xIAA8N1Wlnr-LWa2PJyhQ8pamgaVFVnE2u3xjxJiVa05KAdhF2jPBLmsBko-I-qi4yzbEzCdp3SgUr8lPSLdEfyfcpKobjN87ULzlpi0zIpKPwR5G6rj4vru1GgabxpIf3XrkqyX7i0mzvD0af5YZAI2YxmQNj2606Bbs6DY6-QyzYVdQ4xSxHv3RcsMIZRclLvgBcCCFPgvmpNkgiCtNc93rHLgtQPw__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "A fast 50mm like f1.8 would help with the bokeh. I’ve been using primes as they tend to get a bit sharper images.",
+    date: "2020-06-09T09:14:00",
+  },
+  {
+    id: 3,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/3413/4555/ee1d5e8149ec891d092dbb246ae04aec?Expires=1692576000&Signature=PIOiFgWM1iM9rAsq7i0CzAnY4bBMYrS~~wS4bLGVY7i4t4Zlabb-FYlTxZaFE24Di6YF9w-lI1U~k~EZNJ3OB-8mrnnTCxVgOXaZ0xRVjKdUZVrSUmcPdE~3FRc9shwznkM5qqwC2rH4UhbVexwR6SI5XjRg8hbbhHa9P7x8oVIS4xrfgDNfFhdx4rbkfTLMP7qWB8dhBV7rDpq8LLVcJcvSWlGR4Vi~WJREw4vzzqx2bDR28x2e4MWj1rWjs8NNs4xP6E2VAXTdB-GqN5IoGf04zx-F2n8jXsZ1iurImwpxB7biYCmGZhaCQ497jxq60Ahk46t7m5UyAyw7SUop-g__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "Thank you! That was very helpful!",
+    date: "2020-06-09T09:20:00.239Z",
+  },
+  {
+    id: 4,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/3413/4555/ee1d5e8149ec891d092dbb246ae04aec?Expires=1692576000&Signature=PIOiFgWM1iM9rAsq7i0CzAnY4bBMYrS~~wS4bLGVY7i4t4Zlabb-FYlTxZaFE24Di6YF9w-lI1U~k~EZNJ3OB-8mrnnTCxVgOXaZ0xRVjKdUZVrSUmcPdE~3FRc9shwznkM5qqwC2rH4UhbVexwR6SI5XjRg8hbbhHa9P7x8oVIS4xrfgDNfFhdx4rbkfTLMP7qWB8dhBV7rDpq8LLVcJcvSWlGR4Vi~WJREw4vzzqx2bDR28x2e4MWj1rWjs8NNs4xP6E2VAXTdB-GqN5IoGf04zx-F2n8jXsZ1iurImwpxB7biYCmGZhaCQ497jxq60Ahk46t7m5UyAyw7SUop-g__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "Really love your most recent photo. I’ve been trying to capture the same thing for a few months and would love some tips!",
+    date: "2020-06-09T08:40:00",
+  },
+  {
+    id: 5,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/d7eb/2439/565ee2bb708d7a3f27c90a7cd3c9f0fa?Expires=1692576000&Signature=JXLkqkobjU4C3WK3~4eU0EMuIXwoTgutLjJmqk2-YEvOdWwu~FMH3pX4qvqoMMRPg3mFJrVCT7PaB8jYweV4qrr0q1DvNRrIrzQK~~A0DG-z~mqkNOBj00xIAA8N1Wlnr-LWa2PJyhQ8pamgaVFVnE2u3xjxJiVa05KAdhF2jPBLmsBko-I-qi4yzbEzCdp3SgUr8lPSLdEfyfcpKobjN87ULzlpi0zIpKPwR5G6rj4vru1GgabxpIf3XrkqyX7i0mzvD0af5YZAI2YxmQNj2606Bbs6DY6-QyzYVdQ4xSxHv3RcsMIZRclLvgBcCCFPgvmpNkgiCtNc93rHLgtQPw__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "A fast 50mm like f1.8 would help with the bokeh. I’ve been using primes as they tend to get a bit sharper images.",
+    date: "2020-06-09T09:14:00",
+  },
+  {
+    id: 6,
+    userImageUrl:
+      "https://s3-alpha-sig.figma.com/img/3413/4555/ee1d5e8149ec891d092dbb246ae04aec?Expires=1692576000&Signature=PIOiFgWM1iM9rAsq7i0CzAnY4bBMYrS~~wS4bLGVY7i4t4Zlabb-FYlTxZaFE24Di6YF9w-lI1U~k~EZNJ3OB-8mrnnTCxVgOXaZ0xRVjKdUZVrSUmcPdE~3FRc9shwznkM5qqwC2rH4UhbVexwR6SI5XjRg8hbbhHa9P7x8oVIS4xrfgDNfFhdx4rbkfTLMP7qWB8dhBV7rDpq8LLVcJcvSWlGR4Vi~WJREw4vzzqx2bDR28x2e4MWj1rWjs8NNs4xP6E2VAXTdB-GqN5IoGf04zx-F2n8jXsZ1iurImwpxB7biYCmGZhaCQ497jxq60Ahk46t7m5UyAyw7SUop-g__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4",
+    text: "Thank you! That was very helpful!",
+    date: "2020-06-09T09:20:00.239Z",
+  },
+];

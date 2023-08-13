@@ -10,13 +10,15 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import BackgroundImage from "../../assets/img/bgimage.jpg";
+import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { useEffect, useState } from "react";
 import validateForm from "../../../utils/validateForm";
 import validationSchema from "./validationSchema";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../redux/authSlice";
 
-const LoginScreen = () => {
+const LoginScreen = ({ onAuth }) => {
   const navigation = useNavigation();
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -26,6 +28,7 @@ const LoginScreen = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [currentErrors, setCurrentErrors] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -61,11 +64,11 @@ const LoginScreen = () => {
         console.log(data);
         console.log("Переход на Home");
         reset();
-        navigation.navigate("Home");
+        dispatch(setIsAuth(true));
       }
     );
   };
-  console.log({ Kbd: isKeyboardVisible, OS: Platform.OS });
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
