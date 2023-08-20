@@ -12,6 +12,7 @@ import { store } from "./redux/store";
 import { getIsAuth } from "./redux/selectors";
 
 import Main from "./Screens/MainScreen/Main";
+import CameraScreen from "./Screens/Camera/CameraScreen";
 
 const fontsForLoading = {
   "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
@@ -36,6 +37,11 @@ const Routing = () => {
         options={{ headerShown: false }}
         name="Signup"
         component={RegistrationScreen}
+      />
+      <AuthStack.Screen
+        options={{ headerShown: false }}
+        name="Camera"
+        component={CameraScreen}
       />
     </AuthStack.Navigator>
   );

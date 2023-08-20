@@ -70,122 +70,108 @@ const LoginScreen = ({ onAuth }) => {
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}
-    >
-      <View style={styles.container}>
-        <ImageBackground source={BackgroundImage} style={styles.image}>
-          <KeyboardAvoidingView
-            behavior={"padding"}
-            enabled={Platform.OS === "ios"}
-            // behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <View
+    <ImageBackground source={BackgroundImage} style={styles.image}>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1, justifyContent: "flex-end" }}
+        >
+          <View style={[styles.form]}>
+            <Text style={styles.title}>Увійти</Text>
+            <TextInput
               style={[
-                styles.form,
+                styles.input,
+                { borderColor: loginIsActive ? "#FF6C00" : "#E8E8E8" },
                 {
-                  transform: [
-                    {
-                      translateY: isKeyboardVisible
-                        ? Platform.OS === "ios"
-                          ? 241
-                          : 241
-                        : 0,
-                    },
-                  ],
+                  backgroundColor: currentErrors.login
+                    ? "#ff000030"
+                    : "#F6F6F6",
                 },
               ]}
-            >
-              <Text style={styles.title}>Увійти</Text>
+              placeholder="Логін"
+              placeholderTextColor={"#BDBDBD"}
+              onFocus={() => {
+                setLoginIsActive(true);
+                setCurrentErrors({});
+              }}
+              onBlur={() => {
+                setLoginIsActive(false);
+              }}
+              onChangeText={(text) => {
+                setLogin(text);
+              }}
+              value={login}
+            />
+            {currentErrors.login && (
+              <Text style={styles.errorText}>{currentErrors.login}</Text>
+            )}
+
+            <View>
               <TextInput
                 style={[
                   styles.input,
-                  { borderColor: loginIsActive ? "#FF6C00" : "#E8E8E8" },
+                  { borderColor: passwordIsActive ? "#FF6C00" : "#E8E8E8" },
                   {
-                    backgroundColor: currentErrors.login
+                    backgroundColor: currentErrors.password
                       ? "#ff000030"
                       : "#F6F6F6",
                   },
                 ]}
-                placeholder="Логін"
+                placeholder="Пароль"
                 placeholderTextColor={"#BDBDBD"}
+                secureTextEntry={!passwordIsVisible}
                 onFocus={() => {
-                  setLoginIsActive(true);
+                  setPasswordIsActive(true);
                   setCurrentErrors({});
                 }}
                 onBlur={() => {
-                  setLoginIsActive(false);
+                  setPasswordIsActive(false);
                 }}
                 onChangeText={(text) => {
-                  setLogin(text);
+                  setPassword(text);
                 }}
-                value={login}
+                value={password}
               />
-              {currentErrors.login && (
-                <Text style={styles.errorText}>{currentErrors.login}</Text>
+              {currentErrors.password && (
+                <Text style={styles.errorText}>{currentErrors.password}</Text>
               )}
 
-              <View>
-                <TextInput
-                  style={[
-                    styles.input,
-                    { borderColor: passwordIsActive ? "#FF6C00" : "#E8E8E8" },
-                    {
-                      backgroundColor: currentErrors.password
-                        ? "#ff000030"
-                        : "#F6F6F6",
-                    },
-                  ]}
-                  placeholder="Пароль"
-                  placeholderTextColor={"#BDBDBD"}
-                  secureTextEntry={!passwordIsVisible}
-                  onFocus={() => {
-                    setPasswordIsActive(true);
-                    setCurrentErrors({});
-                  }}
-                  onBlur={() => {
-                    setPasswordIsActive(false);
-                  }}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                  }}
-                  value={password}
-                />
-                {currentErrors.password && (
-                  <Text style={styles.errorText}>{currentErrors.password}</Text>
-                )}
-
-                <TouchableOpacity style={[styles.btnShowPassword]}>
-                  <Text
-                    style={styles.btnShowPasswordText}
-                    onPress={() => setPasswordIsVisible(!passwordIsVisible)}
-                  >
-                    {passwordIsVisible ? "Сховати" : "Показати"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
-                <Text style={styles.btnText}>Увійти</Text>
-              </TouchableOpacity>
-              <View style={styles.toSignUpWrapper}>
-                <Text style={[styles.toSignUpLabel]}>Немає акаунту?</Text>
-                <TouchableOpacity
-                  style={[styles.btnToSignUp]}
-                  onPress={() => {
-                    console.log("Перехід до реєстрації");
-                    navigation.navigate("Signup");
-                  }}
+              <TouchableOpacity style={[styles.btnShowPassword]}>
+                <Text
+                  style={styles.btnShowPasswordText}
+                  onPress={() => setPasswordIsVisible(!passwordIsVisible)}
                 >
-                  <Text style={styles.btnToSignUpText}>Зареєструватися</Text>
-                </TouchableOpacity>
-              </View>
+                  {passwordIsVisible ? "Сховати" : "Показати"}
+                </Text>
+              </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
-        </ImageBackground>
+          </View>
+
+          <View style={styles.blankCover}></View>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+      <View style={styles.btnWrapper}>
+        <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
+          <Text style={styles.btnText}>Увійти</Text>
+        </TouchableOpacity>
+        <View style={styles.toSignUpWrapper}>
+          <Text style={[styles.toSignUpLabel]}>Немає акаунту?</Text>
+          <TouchableOpacity
+            style={[styles.btnToSignUp]}
+            onPress={() => {
+              console.log("Перехід до реєстрації");
+              navigation.navigate("Signup");
+            }}
+          >
+            <Text style={styles.btnToSignUpText}>Зареєструватися</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </TouchableWithoutFeedback>
+    </ImageBackground>
   );
 };
 
@@ -200,6 +186,8 @@ const styles = StyleSheet.create({
   },
   form: {
     resizeMode: "cover",
+    position: "relative",
+    zIndex: 10,
     backgroundColor: "white",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -241,6 +229,17 @@ const styles = StyleSheet.create({
     lineHeight: 19,
 
     // ,
+  },
+  blankCover: {
+    width: "100%",
+    height: 100,
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: "#fff",
+    zIndex: 5,
+  },
+  btnWrapper: {
+    backgroundColor: "#fff",
   },
   btn: {
     alignItems: "center",

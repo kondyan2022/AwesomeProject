@@ -7,11 +7,13 @@ export const PublicationCard = ({
   geoPosition,
   commentsCount,
   likesCount,
+  location,
   messageIcon,
   thumbsIcon,
   navigation,
   id,
 }) => {
+  console.log(location);
   return (
     <View style={styles.container}>
       <Image
@@ -31,15 +33,16 @@ export const PublicationCard = ({
               <Text style={styles.countText}>{commentsCount}</Text>
             </View>
           </TouchableOpacity>
-          {likesCount && (
+          {likesCount >= 0 && (
             <View style={[styles.cardInfoBox, { gap: 6 }]}>
               <Feather name="thumbs-up" size={24} {...thumbsIcon} />
               <Text style={styles.countText}>{likesCount}</Text>
             </View>
           )}
         </View>
-
-        <TouchableOpacity onPress={() => navigation.navigate("Map")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Map", { location: location })}
+        >
           <View style={styles.cardInfoBox}>
             <Feather name="map-pin" size={24} color="#BDBDBD" />
             <Text style={styles.locationText}>{geoPosition}</Text>

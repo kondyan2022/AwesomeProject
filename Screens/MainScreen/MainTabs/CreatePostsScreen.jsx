@@ -1,18 +1,118 @@
 import {
+  Dimensions,
+  Image,
   Keyboard,
+  KeyboardAvoidingView,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ActivityIndicator,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { FontAwesome, Feather } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as Location from "expo-location";
+import { notes } from "../../../testdata";
+import { nanoid } from "@reduxjs/toolkit";
 
-const CreatePostsScreen = ({ navigation }) => {
-  const [postTitle, setPostTitle] = useState();
+const screenDimensions = Dimensions.get("screen");
+
+const CreatePostsScreen = ({ navigation, route }) => {
+  const [postTitle, setPostTitle] = useState("");
+  const [imageUri, setImageUri] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [geocode, setGeocode] = useState(null);
+  const [textLocation, setTextLocation] = useState("");
+  const [isGeoLoading, setIsGeoLoading] = useState(false);
+
+  const pickImage = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled) setImageUri(result.assets[0].uri);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setIsGeoLoading(true);
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          console.log("Permission to access location was denied");
+        }
+        if (imageUri) {
+          let location = await Location.getLastKnownPositionAsync({});
+          console.log("lst khown", location);
+          location = (await Location.getCurrentPositionAsync({})) ?? location;
+          console.log("current", location);
+          if (location) {
+            const coords = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            };
+            let geo = await Location.reverseGeocodeAsync(coords);
+            setLocation(coords);
+            setGeocode(geo);
+            setIsGeoLoading(false);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        setIsGeoLoading(false);
+      }
+    })();
+  }, [imageUri]);
+
+  useEffect(() => {
+    if (geocode) {
+      setTextLocation(
+        `${geocode[0]?.city + "," ?? ""} ${geocode[0]?.country ?? ""}`
+      );
+    }
+  }, [geocode]);
+
+  useEffect(() => {
+    if (route.params?.imageUri) {
+      setImageUri(route.params.imageUri);
+    }
+  }, [route]);
+
+  const reset = () => {
+    setPostTitle("");
+    setImageUri(null);
+    setLocation(null);
+    setGeocode(null);
+    setTextLocation("");
+  };
+
+  const handleSubmit = () => {
+    notes.push({
+      id: nanoid(),
+      title: postTitle,
+      imageUrl: imageUri,
+      geoPosition: textLocation,
+      commentsCount: 0,
+      likes: 0,
+      location: location,
+    });
+    console.log("Принято");
+    notes.forEach((a) => console.log(a));
+    reset();
+    navigation.goBack();
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -36,40 +136,126 @@ const CreatePostsScreen = ({ navigation }) => {
             <Feather name="arrow-left" size={24} color="#212121" />
           </TouchableOpacity>
         </View>
-        <View style={styles.cardContainer}>
-          <TouchableOpacity>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <ScrollView style={styles.cardContainer}>
             <View style={styles.photoWrapper}>
-              <View style={styles.iconPhotoWrapper}>
-                <FontAwesome
-                  name="camera"
-                  size={18}
-                  color="#BDBDBD"
-                  style={styles.iconPhoto}
+              {imageUri && (
+                <Image
+                  style={styles.image}
+                  source={{ uri: imageUri }}
+                  width={343}
+                  height={240}
                 />
-              </View>
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("Camera", { key: route.key });
+                }}
+              >
+                <View
+                  style={[
+                    styles.iconPhotoWrapper,
+                    {
+                      backgroundColor: imageUri
+                        ? "rgba(255, 255, 255, 0.30)"
+                        : "#fff",
+                    },
+                  ]}
+                >
+                  <FontAwesome
+                    name="camera"
+                    size={18}
+                    color={imageUri ? "#fff" : "#BDBDBD"}
+                    style={[styles.iconPhoto]}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnPhotoEdit}>
-            <Text style={styles.btnPhotoEditText}>Завантажте фото</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <TextInput
-              style={styles.titleInput}
-              placeholder="Назва..."
-              placeholderTextColor={"#BDBDBD"}
-              value={postTitle}
-              onChangeText={setPostTitle}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnLocation}>
-            <Feather name="map-pin" size={24} color="#BDBDBD" />
-            <Text style={styles.textLocation}>Місцевість</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.btnPhotoEdit} onPress={pickImage}>
+              <Text style={styles.btnPhotoEditText}>Завантажте фото</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <TextInput
+                style={styles.titleInput}
+                placeholder="Назва..."
+                placeholderTextColor={"#BDBDBD"}
+                value={postTitle}
+                onChangeText={setPostTitle}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btnLocation}>
+              <Feather name="map-pin" size={24} color="#BDBDBD" />
+              {imageUri && isGeoLoading && (
+                <ActivityIndicator
+                  style={styles.geoLoader}
+                  size="small"
+                  color="#BDBDBD"
+                />
+              )}
+              <TextInput
+                style={styles.textLocation}
+                placeholder="Місцевість"
+                placeholderTextColor={"#BDBDBD"}
+                onChangeText={setTextLocation}
+                value={textLocation}
+              />
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.btnSubmit}>
-            <Text style={styles.btnSubmitText}>Опублікувати</Text>
-          </TouchableOpacity>
-        </View>
+            <View
+              style={[
+                styles.btnWrapper,
+                {
+                  height:
+                    Platform.OS === "ios"
+                      ? screenDimensions.height - 535
+                      : screenDimensions.height - 535 - 82,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.btnSubmit,
+                  {
+                    backgroundColor:
+                      location && imageUri && postTitle?.length > 0
+                        ? "#FF6C00"
+                        : "#F6F6F6",
+                  },
+                ]}
+                onPress={handleSubmit}
+                disabled={!(location && imageUri && postTitle?.length > 0)}
+              >
+                <Text
+                  style={[
+                    styles.btnSubmitText,
+                    {
+                      color:
+                        location && imageUri && postTitle?.length > 0
+                          ? "#FFF"
+                          : "#BDBDBD",
+                    },
+                  ]}
+                >
+                  Опублікувати
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={reset}
+                style={[
+                  styles.btnTrash,
+                  {
+                    marginBottom: screenDimensions.height - 639 > 60 ? 34 : 5,
+                  },
+                ]}
+              >
+                <Feather name="trash-2" size={24} color="#BDBDBD" />
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -106,6 +292,9 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flex: 1,
+    // borderWidth: 2,
+    // borderColor: "tomato",
+    // height: 456,
   },
   photoWrapper: {
     justifyContent: "center",
@@ -117,13 +306,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E8E8E8",
   },
+  image: {
+    flex: 1,
+    position: "absolute",
+    borderRadius: 8,
+    // backgroundColor: "tomato",
+  },
   iconPhotoWrapper: {
+    // position: "absolute",
     justifyContent: "center",
     alignItems: "center",
+    // alignSelf: "center",
+
     height: 60,
     width: 60,
     borderRadius: 120,
-    backgroundColor: "white",
+
+    // borderColor: "tomato",
+    // borderWidth: 2,
   },
   btnPhotoEdit: {
     alignSelf: "flex-start",
@@ -159,19 +359,31 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E8E8E8",
   },
   textLocation: {
+    flex: 1,
     fontFamily: "Roboto-Regular",
     fontStyle: "normal",
     fontSize: 16,
     lineHeight: 19,
     color: "#BDBDBD",
+    // marginBottom: 20,
   },
+  geoLoader: {
+    position: "absolute",
+    right: 10,
+  },
+  btnWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
+    // paddingTop: 32,
+  },
+
   btnSubmit: {
     alignItems: "center",
     justifyContent: "center",
     width: 343,
     height: 51,
     borderRadius: 100,
-    backgroundColor: "#F6F6F6",
   },
   btnSubmitText: {
     fontFamily: "Roboto-Regular",
@@ -179,6 +391,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     color: "#BDBDBD",
+  },
+  btnTrash: {
+    width: 70,
+    height: 40,
+
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f6f6f6",
+    borderRadius: 80,
   },
 });
 

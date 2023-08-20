@@ -43,18 +43,24 @@ const PostsScreen = ({ navigation }) => {
               <Text style={styles.userEmail}>{user.email}</Text>
             </View>
           </View>
-          {notes.map(({ id, title, imageUrl, geoPosition, commentsCount }) => (
-            <PublicationCard
-              key={id}
-              id={id}
-              title={title}
-              imageUrl={imageUrl}
-              geoPosition={geoPosition}
-              commentsCount={commentsCount}
-              messageIcon={{ color: "#BDBDBD", backgroundColor: "transparent" }}
-              navigation={navigation}
-            />
-          ))}
+          {notes.map(
+            ({ id, title, imageUrl, geoPosition, commentsCount, location }) => (
+              <PublicationCard
+                key={id}
+                id={id}
+                title={title}
+                imageUrl={imageUrl}
+                geoPosition={geoPosition}
+                commentsCount={commentsCount}
+                location={location}
+                messageIcon={{
+                  color: "#BDBDBD",
+                  backgroundColor: "transparent",
+                }}
+                navigation={navigation}
+              />
+            )
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -15,8 +16,15 @@ import { PublicationCard } from "../../../Components/PublicationCard";
 import { useDispatch } from "react-redux";
 import { setIsAuth } from "../../../redux/authSlice";
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
+  const [imageUserUri, setImageUserUri] = useState(user.imageUrl);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (route.params?.imageUri) {
+      setImageUserUri(route.params.imageUri);
+    }
+  }, [route]);
 
   return (
     <View style={styles.container}>
@@ -27,18 +35,35 @@ const ProfileScreen = ({ navigation }) => {
       >
         <View style={[styles.form]}>
           <View style={styles.userImage}>
-            <Image
-              source={{ uri: user.imageUrl }}
-              style={[styles.userPhoto, { width: 120, height: 120 }]}
-            />
-
-            <TouchableOpacity style={styles.userImageButton}>
-              <Feather
-                name="plus"
-                size={22}
-                color="#BDBDBD"
-                backgroundColor="#FFF"
+            {imageUserUri && (
+              <Image
+                source={{ uri: imageUserUri }}
+                style={[styles.userPhoto, { width: 120, height: 120 }]}
               />
+            )}
+            <TouchableOpacity
+              style={[
+                styles.userImageButton,
+                imageUserUri ? { transform: [{ rotate: "45deg" }] } : {},
+              ]}
+              onPress={() => {
+                if (imageUserUri) {
+                  setImageUserUri(null);
+                } else {
+                  navigation.navigate("Camera", { key: route.key });
+                }
+              }}
+            >
+              {imageUserUri ? (
+                <Feather
+                  name="plus"
+                  size={22}
+                  color="#BDBDBD"
+                  backgroundColor="#FFF"
+                />
+              ) : (
+                <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+              )}
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -52,22 +77,34 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.userName}>{user.name}</Text>
           <ScrollView style={styles.listView}>
             {notes.map(
-              ({ id, title, imageUrl, geoPosition, commentsCount, likes }) => (
-                <PublicationCard
-                  key={id}
-                  id={id}
-                  title={title}
-                  imageUrl={imageUrl}
-                  geoPosition={geoPosition.split(" ").slice(-1)}
-                  commentsCount={commentsCount}
-                  likesCount={likes}
-                  messageIcon={{
-                    color: "#FF6C00",
-                  }}
-                  thumbsIcon={{ color: "#FF6C00" }}
-                  navigation={navigation}
-                />
-              )
+              ({
+                id,
+                title,
+                imageUrl,
+                geoPosition,
+                commentsCount,
+                likes,
+                location,
+              }) => {
+                console.log(id);
+                return (
+                  <PublicationCard
+                    key={id}
+                    id={id}
+                    title={title}
+                    imageUrl={imageUrl}
+                    geoPosition={geoPosition.split(" ").slice(-1)}
+                    commentsCount={commentsCount}
+                    likesCount={likes}
+                    location={location}
+                    messageIcon={{
+                      color: "#FF6C00",
+                    }}
+                    thumbsIcon={{ color: "#FF6C00" }}
+                    navigation={navigation}
+                  />
+                );
+              }
             )}
           </ScrollView>
         </View>
@@ -75,43 +112,6 @@ const ProfileScreen = ({ navigation }) => {
     </View>
   );
 };
-
-// <View style={styles.container}>
-// <ImageBackground source={BackgroundImage} style={styles.image}>
-// <Text>Ghbddfsdlkf </Text>
-// //    <View style={[styles.main]}>
-// //       <View style={[styles.form]}>
-// //         <View style={styles.userImage}>
-// //           <TouchableOpacity style={styles.userImageButton}>
-// //             <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
-// //           </TouchableOpacity>
-// //         </View>
-// //         <TouchableOpacity
-//           style={styles.btnLogOut}
-//           onPress={() => {
-//             console.log("Перехід до Логін");
-//           }}
-//         >
-//           <Feather name="log-out" size={24} color="#BDBDBD" />
-//         </TouchableOpacity>
-//         <Text>{user.name}</Text>
-//         <ScrollView style={styles.listView}>
-//           {notes.map(
-//             ({ id, title, imageUrl, geoPosition, commentsCount }) => (
-//               <PublicationCard
-//                 key={id}
-//                 title={title}
-//                 imageUrl={imageUrl}
-//                 geoPosition={geoPosition.split(" ").slice(-1)}
-//                 commentsCount={commentsCount}
-//               />
-//             )
-//           )}
-//         </ScrollView>
-//       </View>
-//     </View> */}
-//   {/* </ImageBackground> */}
-// // </View>
 
 const styles = StyleSheet.create({
   container: {
@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     borderColor: "#E8E8E8",
 
     overflow: "hidden",
-    transform: [{ rotate: "45deg" }],
   },
   btnLogOut: {
     position: "absolute",
@@ -172,14 +171,6 @@ const styles = StyleSheet.create({
     lineHeight: 35,
     letterSpacing: 0.3,
   },
-  // image: { borderRadius: 16 },
-  // userCard: {
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   paddingVertical: 32,
-  //   gap: 8,
-  //   alignSelf: "flex-start",
-  // },
 });
 
 export default ProfileScreen;
