@@ -1,5 +1,9 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
+import { auth } from "../firebase/config";
+import { useDispatch, useSelector } from "react-redux";
+import { addLikeThunk, removeLikeThunk } from "../redux/posts/thunk";
+import { getPosts } from "../redux/posts/selectors";
 
 export const PublicationCard = ({
   title,
@@ -12,8 +16,11 @@ export const PublicationCard = ({
   thumbsIcon,
   navigation,
   id,
+  uid,
+  likes,
 }) => {
-  console.log(location);
+  const dispatch = useDispatch();
+  const isLiked = likes.includes(auth.currentUser.uid);
   return (
     <View style={styles.container}>
       <Image
@@ -34,10 +41,28 @@ export const PublicationCard = ({
             </View>
           </TouchableOpacity>
           {likesCount >= 0 && (
-            <View style={[styles.cardInfoBox, { gap: 6 }]}>
-              <Feather name="thumbs-up" size={24} {...thumbsIcon} />
-              <Text style={styles.countText}>{likesCount}</Text>
-            </View>
+            <TouchableOpacity
+              disabled={uid === auth.currentUser.uid}
+              onPress={() => {
+                // console.log(uid, auth.currentUser.uid);
+                // console.log("like press!!! isLiked", isLiked);
+
+                dispatch(
+                  isLiked
+                    ? removeLikeThunk({ postId: id, uid: auth.currentUser.uid })
+                    : addLikeThunk({ postId: id, uid: auth.currentUser.uid })
+                );
+              }}
+            >
+              <View style={[styles.cardInfoBox, { gap: 6 }]}>
+                {!isLiked ? (
+                  <Feather name="thumbs-up" size={24} {...thumbsIcon} />
+                ) : (
+                  <FontAwesome name="thumbs-up" size={24} {...thumbsIcon} />
+                )}
+                <Text style={styles.countText}>{likesCount}</Text>
+              </View>
+            </TouchableOpacity>
           )}
         </View>
         <TouchableOpacity

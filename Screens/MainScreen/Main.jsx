@@ -6,11 +6,40 @@ import CommentsScreen from "./CommentsScreen";
 import MainTabs from "./MainTabs/MainTabs";
 import CameraScreen from "../Camera/CameraScreen";
 import ImagePickerExample from "../ImageGallery/ImageGallery";
+import { useDispatch } from "react-redux";
+import { useEffect, useRef } from "react";
+import { fetchAllThunk } from "../../redux/posts/thunk";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { Platform } from "react-native";
+import { addPost, updatePost } from "../../redux/posts/postsSlice";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const Main = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "posts"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        // console.log(Platform.OS, " => ", change);
+        if (change.type === "added") {
+          // console.log(`${Platform.OS} Add : `, change.doc.data());
+          dispatch(addPost(change.doc.data()));
+        }
+        if (change.type === "modified") {
+          // console.log(`${Platform.OS} Modified : `, change.doc.data());
+          dispatch(updatePost(change.doc.data()));
+        }
+        // if (change.type === "removed") {
+        //   console.log(`${Platform.OS} Removed : `, change.doc.data());
+        // }
+      });
+    });
+    return () => unsubscribe();
+  }, [dispatch]);
+
   return (
     <Stack.Navigator>
       <Stack.Screen

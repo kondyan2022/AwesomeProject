@@ -9,23 +9,30 @@ import {
 } from "react-native";
 import { Camera, CameraType, FlashMode } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
+import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
 import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import { CommonActions } from "@react-navigation/native";
 
 export default function CameraScreen({ navigation, route }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
-  const [type, setType] = useState(CameraType.back);
+  const [type, setType] = useState(
+    route.params?.avatar ? CameraType.front : CameraType.back
+  );
   const [flashMode, setFlashMode] = useState(FlashMode.off);
   const [imageUri, setImageUri] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      await MediaLibrary.requestPermissionsAsync();
+    try {
+      (async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        await MediaLibrary.requestPermissionsAsync();
 
-      setHasPermission(status === "granted");
-    })();
+        setHasPermission(status === "granted");
+      })();
+    } catch (error) {
+      console.log("useEffect camera requestCameraPermissionsAsync() ", error);
+    }
   }, []);
 
   if (hasPermission === null) {
@@ -35,7 +42,7 @@ export default function CameraScreen({ navigation, route }) {
     return <Text>No access to camera</Text>;
   }
   const changeFlash = () => {
-    console.log(flashMode);
+    // console.log(flashMode);
     switch (flashMode) {
       case FlashMode.off:
         setFlashMode(FlashMode.on);
@@ -47,7 +54,7 @@ export default function CameraScreen({ navigation, route }) {
         setFlashMode(FlashMode.off);
         break;
     }
-    console.log("after", flashMode);
+    // console.log("after", flashMode);
   };
 
   const handleGoBack = () => {
@@ -65,12 +72,33 @@ export default function CameraScreen({ navigation, route }) {
   const handleSnap = async () => {
     try {
       if (cameraRef) {
-        const imageData = await cameraRef.takePictureAsync();
+        const actions = [];
+        let imageData = await cameraRef.takePictureAsync();
+
+        if (type === CameraType.front) {
+          actions.push(
+            { flip: FlipType.Horizontal },
+            { resize: { width: imageData.width * 0.7 } }
+          );
+        }
+        if (route.params?.avatar) {
+          actions.push({ resize: { width: 300 } });
+        }
+
+        actions.push({ resize: { width: imageData.width * 0.7 } });
+
+        imageData = await manipulateAsync(imageData.uri, actions, {
+          compress: 0.7,
+          format: SaveFormat.JPEG,
+        });
+
+        // console.log(imageData.uri);
         const imageLibrary = await MediaLibrary.createAssetAsync(imageData.uri);
+        // console.log(imageLibrary.uri);
         setImageUri(imageLibrary.uri);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Camera handleUpload:", error);
     }
   };
 

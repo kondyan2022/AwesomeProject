@@ -4,7 +4,10 @@ const validationSchema = yup.object().shape({
   login: yup
     .string()
     .min(2, "Мінімум 2 символа! ")
-    .matches(/^[a-zA-Z]+\w+$/, "Тільки латинські літери, цифри та '_'! ")
+    .matches(
+      /^[a-zA-Z]+[a-zA-Z ]*[a-zA-Z]$/,
+      "Тільки латинські літери та пробіл"
+    )
     .required("Обов'язково!"),
   email: yup
     .string()

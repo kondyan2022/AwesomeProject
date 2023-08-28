@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { AntDesign, Feather } from "@expo/vector-icons";
@@ -17,8 +18,13 @@ import { useEffect, useState } from "react";
 import validationSchema from "./validationSchema";
 import validateForm from "../../../utils/validateForm";
 
-import { useDispatch } from "react-redux";
-import { setIsAuth } from "../../../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAuth } from "../../../redux/auth/authSlice";
+import { signUpUserThunk } from "../../../redux/auth/thunk";
+import { getAuthIsPending } from "../../../redux/auth/selectors";
+import { uriToBlob } from "../../../utils/blobFromPhoto";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { auth, storage } from "../../../firebase/config";
 
 const RegistrationScreen = ({ onAuth, route, navigation }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -33,6 +39,7 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
   const [currentErrors, setCurrentErrors] = useState({});
   const [imageUserUri, setImageUserUri] = useState(null);
   const dispatch = useDispatch();
+  const isLoading = useSelector(getAuthIsPending);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -72,9 +79,10 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
       validationSchema,
       setCurrentErrors,
       (data) => {
-        console.log(data);
-        reset();
-        dispatch(setIsAuth(true));
+        // console.log({ ...data, imageUserUri });
+        // reset();
+        dispatch(signUpUserThunk({ login, email, password, imageUserUri }));
+        // dispatch(setIsAuth(true));
       }
     );
   };
@@ -134,7 +142,10 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
                   if (imageUserUri) {
                     setImageUserUri(null);
                   } else {
-                    navigation.navigate("Camera", { key: route.key });
+                    navigation.navigate("Camera", {
+                      key: route.key,
+                      avatar: true,
+                    });
                   }
                 }}
               >
@@ -250,11 +261,18 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
       <View style={styles.btnWrapper}>
         <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
           <Text style={styles.btnText}>Зареєструватися</Text>
+          {isLoading && (
+            <ActivityIndicator
+              style={styles.loginLoader}
+              size="small"
+              color="#BDBDBD"
+            />
+          )}
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.btnToLogin]}
           onPress={() => {
-            console.log("Перехід до Логін");
+            // console.log("Перехід до Логін");
             navigation.navigate("Login");
           }}
         >
@@ -355,6 +373,10 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     paddingVertical: 16,
     color: "#fff",
+  },
+  loginLoader: {
+    position: "absolute",
+    right: 10,
   },
   btnToLogin: {
     marginTop: 16,

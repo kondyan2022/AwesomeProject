@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -13,16 +13,67 @@ import { Feather, AntDesign } from "@expo/vector-icons";
 import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { notes, user } from "../../../testdata";
 import { PublicationCard } from "../../../Components/PublicationCard";
-import { useDispatch } from "react-redux";
-import { setIsAuth } from "../../../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAuth, updateUserProfile } from "../../../redux/auth/authSlice";
+import {
+  getAuth,
+  getDisplayName,
+  getIsAuth,
+  getUserImageURL,
+  getUserProfile,
+} from "../../../redux/auth/selectors";
+import { getPosts } from "../../../redux/posts/selectors";
+import { auth, storage } from "../../../firebase/config";
+import { signOutUserThunk } from "../../../redux/auth/thunk";
+import { clearPosts } from "../../../redux/posts/postsSlice";
+import { uriToBlob } from "../../../utils/blobFromPhoto";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { updateProfile } from "firebase/auth";
 
 const ProfileScreen = ({ navigation, route }) => {
-  const [imageUserUri, setImageUserUri] = useState(user.imageUrl);
+  const imageUserUri = useSelector(getUserImageURL);
+  const displayName = useSelector(getDisplayName);
+  const isAuth = useSelector(getAuth);
+  const { email } = useSelector(getUserProfile);
   const dispatch = useDispatch();
+  const posts = useSelector(getPosts);
+
+  // console.log("profile=>", posts);
+  // useEffect(() => {
+  //   if (route.params?.imageUri) {
+  //     setImageUserUri(route.params.imageUri);
+  //   }
+  // }, [route]);
+  const userPosts = useMemo(
+    () => posts.filter((post) => post.uid === auth.currentUser.uid),
+    [auth.currentUser.uid, posts]
+  );
 
   useEffect(() => {
+    const asyncFn = async () => {
+      try {
+        const blobFile = await uriToBlob(route.params.imageUri);
+        const avatarRef = ref(storage, `${auth.currentUser.uid}/avatar.jpg`);
+        await uploadBytes(avatarRef, blobFile, {
+          contentType: "image/jpeg",
+        });
+        const proceedPhoto = await getDownloadURL(avatarRef);
+
+        await updateProfile(auth.currentUser, {
+          photoURL: proceedPhoto,
+        });
+        dispatch(
+          updateUserProfile({
+            photoURL: proceedPhoto,
+          })
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
     if (route.params?.imageUri) {
-      setImageUserUri(route.params.imageUri);
+      asyncFn();
+      // setImageUserUri(route.params.imageUri);
     }
   }, [route]);
 
@@ -48,9 +99,16 @@ const ProfileScreen = ({ navigation, route }) => {
               ]}
               onPress={() => {
                 if (imageUserUri) {
-                  setImageUserUri(null);
+                  dispatch(
+                    updateUserProfile({
+                      photoURL: null,
+                    })
+                  );
                 } else {
-                  navigation.navigate("Camera", { key: route.key });
+                  navigation.navigate("Camera", {
+                    key: route.key,
+                    avatar: true,
+                  });
                 }
               }}
             >
@@ -69,34 +127,37 @@ const ProfileScreen = ({ navigation, route }) => {
           <TouchableOpacity
             style={styles.btnLogOut}
             onPress={() => {
-              dispatch(setIsAuth(false));
+              dispatch(clearPosts());
+              dispatch(signOutUserThunk());
             }}
           >
             <Feather name="log-out" size={24} color="#BDBDBD" />
           </TouchableOpacity>
-          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={styles.userName}>{displayName}</Text>
           <ScrollView style={styles.listView}>
-            {notes.map(
+            {userPosts.map(
               ({
                 id,
                 title,
-                imageUrl,
+                imageUri,
                 geoPosition,
-                commentsCount,
+                comments,
                 likes,
                 location,
+                uid,
               }) => {
-                console.log(id);
                 return (
                   <PublicationCard
                     key={id}
                     id={id}
                     title={title}
-                    imageUrl={imageUrl}
+                    imageUrl={imageUri}
                     geoPosition={geoPosition.split(" ").slice(-1)}
-                    commentsCount={commentsCount}
-                    likesCount={likes}
+                    commentsCount={comments.length}
+                    likesCount={likes.length}
                     location={location}
+                    likes={likes}
+                    uid={uid}
                     messageIcon={{
                       color: "#FF6C00",
                     }}

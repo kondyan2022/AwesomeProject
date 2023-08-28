@@ -10,12 +10,23 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { PublicationCard } from "../../../Components/PublicationCard";
 import { notes, user } from "../../../testdata";
-import { useDispatch } from "react-redux";
-import { setIsAuth } from "../../../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAuth } from "../../../redux/auth/authSlice";
+import { signOut } from "firebase/auth";
+import { signOutUserThunk } from "../../../redux/auth/thunk";
+import { getUserProfile } from "../../../redux/auth/selectors";
+import { getPosts } from "../../../redux/posts/selectors";
+import { clearPosts } from "../../../redux/posts/postsSlice";
 
 const PostsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const posts = useSelector(getPosts);
 
+  const {
+    email: userEmail,
+    displayName: userName,
+    photoURL: userImageUri,
+  } = useSelector(getUserProfile);
   return (
     <SafeAreaView
       style={[styles.container, { paddingTop: Platform.OS === "ios" ? 0 : 30 }]}
@@ -25,7 +36,8 @@ const PostsScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.btnLogOut}
           onPress={() => {
-            dispatch(setIsAuth(false));
+            dispatch(clearPosts());
+            dispatch(signOutUserThunk());
           }}
         >
           <Feather name="log-out" size={24} color="#BDBDBD" />
@@ -35,24 +47,36 @@ const PostsScreen = ({ navigation }) => {
         <ScrollView style={styles.listView}>
           <View style={styles.userCard}>
             <Image
-              source={{ uri: user.imageUrl }}
+              source={{ uri: userImageUri }}
               style={[styles.image, { width: 60, height: 60 }]}
             />
             <View>
-              <Text style={styles.userName}>{user.name}</Text>
-              <Text style={styles.userEmail}>{user.email}</Text>
+              <Text style={styles.userName}>{userName}</Text>
+              <Text style={styles.userEmail}>{userEmail}</Text>
             </View>
           </View>
-          {notes.map(
-            ({ id, title, imageUrl, geoPosition, commentsCount, location }) => (
+          {posts.map(
+            ({
+              id,
+              title,
+              imageUri,
+              geoPosition,
+              comments,
+              location,
+              likes,
+              uid,
+            }) => (
               <PublicationCard
                 key={id}
                 id={id}
                 title={title}
-                imageUrl={imageUrl}
+                imageUrl={imageUri}
                 geoPosition={geoPosition}
-                commentsCount={commentsCount}
+                commentsCount={comments.length}
+                likesCount={likes.length}
                 location={location}
+                likes={likes}
+                uid={uid}
                 messageIcon={{
                   color: "#BDBDBD",
                   backgroundColor: "transparent",

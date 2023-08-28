@@ -17,8 +17,9 @@ import * as ImagePicker from "expo-image-picker";
 import { FontAwesome, Feather } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
-import { notes } from "../../../testdata";
-import { nanoid } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import { addPostThunk } from "../../../redux/posts/thunk";
+import { getIsPending } from "../../../redux/posts/selectors";
 
 const screenDimensions = Dimensions.get("screen");
 
@@ -29,6 +30,8 @@ const CreatePostsScreen = ({ navigation, route }) => {
   const [geocode, setGeocode] = useState(null);
   const [textLocation, setTextLocation] = useState("");
   const [isGeoLoading, setIsGeoLoading] = useState(false);
+  const dispatch = useDispatch();
+  const isLoading = useSelector(getIsPending);
 
   const pickImage = async () => {
     try {
@@ -54,14 +57,15 @@ const CreatePostsScreen = ({ navigation, route }) => {
         }
         if (imageUri) {
           let location = await Location.getLastKnownPositionAsync({});
-          console.log("lst khown", location);
+          // console.log("lst khown", location);
           location = (await Location.getCurrentPositionAsync({})) ?? location;
-          console.log("current", location);
+          // console.log("current", location);
           if (location) {
-            const coords = {
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            };
+            const { coords } = location;
+            // {
+            // latitude: location.coords.latitude,
+            // longitude: location.coords.longitude,
+            // };
             let geo = await Location.reverseGeocodeAsync(coords);
             setLocation(coords);
             setGeocode(geo);
@@ -78,7 +82,9 @@ const CreatePostsScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (geocode) {
       setTextLocation(
-        `${geocode[0]?.city + "," ?? ""} ${geocode[0]?.country ?? ""}`
+        `${geocode[0]?.city ? geocode[0]?.city + "," : ""} ${
+          geocode[0]?.country ?? ""
+        }`
       );
     }
   }, [geocode]);
@@ -97,20 +103,33 @@ const CreatePostsScreen = ({ navigation, route }) => {
     setTextLocation("");
   };
 
-  const handleSubmit = () => {
-    notes.push({
-      id: nanoid(),
-      title: postTitle,
-      imageUrl: imageUri,
-      geoPosition: textLocation,
-      commentsCount: 0,
-      likes: 0,
-      location: location,
-    });
-    console.log("Принято");
-    notes.forEach((a) => console.log(a));
-    reset();
-    navigation.goBack();
+  const handleSubmit = async () => {
+    // notes.push({
+    //   id: nanoid(),
+    //   title: postTitle,
+    //   imageUrl: imageUri,
+    //   geoPosition: textLocation,
+    //   commentsCount: 0,
+    //   likes: 0,
+    //   location: location,
+    // });
+    try {
+      const date = new Date().toISOString();
+      await dispatch(
+        addPostThunk({
+          title: postTitle,
+          imageUrl: imageUri,
+          geoPosition: textLocation,
+          location: location,
+          date: date,
+        })
+      ).unwrap();
+      // console.log("Принято");
+      reset();
+      navigation.goBack();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -152,7 +171,9 @@ const CreatePostsScreen = ({ navigation, route }) => {
               )}
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate("Camera", { key: route.key });
+                  navigation.navigate("Camera", {
+                    key: route.key,
+                  });
                 }}
               >
                 <View
@@ -241,6 +262,13 @@ const CreatePostsScreen = ({ navigation, route }) => {
                 >
                   Опублікувати
                 </Text>
+                {isLoading && (
+                  <ActivityIndicator
+                    style={styles.createPostLoader}
+                    size="small"
+                    color="#BDBDBD"
+                  />
+                )}
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={reset}
@@ -391,6 +419,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     color: "#BDBDBD",
+  },
+  createPostLoader: {
+    position: "absolute",
+    right: 10,
   },
   btnTrash: {
     width: 70,

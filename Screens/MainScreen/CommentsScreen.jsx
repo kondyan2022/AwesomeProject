@@ -1,9 +1,9 @@
 import {
   Button,
+  Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  KeyboardAvoidingViewBase,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -14,24 +14,30 @@ import {
   View,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import { comments, notes, user } from "../../testdata";
-import { useRoute } from "@react-navigation/native";
-import { nanoid } from "@reduxjs/toolkit";
 import { useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getPosts } from "../../redux/posts/selectors";
+import { auth } from "../../firebase/config";
+import { addCommentToPostThunk } from "../../redux/posts/thunk";
+// import { useKeyboardHeight } from "../../utils/hookKeyboardHeight";
 
-const CommentsScreen = ({ navigation }) => {
-  const [commentsList, setCommentsList] = useState(comments);
+const CommentsScreen = ({ navigation, route }) => {
+  const posts = useSelector(getPosts);
+  const dispatch = useDispatch();
   const [comment, setComment] = useState("");
-  const {
-    params: { id: searchId },
-  } = useRoute();
   const listRef = useRef(null);
+  // const keyboardHeight = useKeyboardHeight();
+
+  const currentPost = useMemo(
+    () => posts.filter(({ id }) => id === route.params.id)[0],
+    [posts, route.params.id]
+  );
 
   const getCommentListLayout = useMemo(
     () =>
-      commentsList.map((elem, index) => (
+      currentPost.comments.map((elem, index) => (
         <View
-          key={elem.id}
+          key={index}
           style={[
             styles.card,
             { flexDirection: index % 2 === 0 ? "row" : "row-reverse" },
@@ -43,7 +49,7 @@ const CommentsScreen = ({ navigation }) => {
           />
 
           <View style={[styles.textWrapper, { width: 299, height: "auto" }]}>
-            <Text style={styles.text}>{elem.text}</Text>
+            <Text style={styles.text}>{elem.comment}</Text>
             <Text
               style={[
                 styles.date,
@@ -64,29 +70,45 @@ const CommentsScreen = ({ navigation }) => {
           </View>
         </View>
       )),
-    [commentsList]
+    [currentPost]
   );
 
   const handleSubmit = () => {
-    setCommentsList((prevState) => [
-      ...prevState,
-      {
-        id: nanoid(),
-        userImageUrl: user.imageUrl,
-        text: comment,
+    dispatch(
+      addCommentToPostThunk({
+        postId: route.params.id,
+        uid: auth.currentUser.uid,
+        userImageUrl: auth.currentUser.photoURL,
+        comment: comment,
         date: new Date().toISOString(),
-      },
-    ]);
+      })
+    )
+      .unwrap()
+      .then(() => listRef.current?.scrollToEnd());
 
-    listRef.current?.scrollToEnd();
     setComment("");
   };
 
   return (
     <SafeAreaView
-      style={[styles.container, { paddingTop: Platform.OS === "ios" ? 0 : 44 }]}
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.OS === "ios" ? 0 : 44,
+        },
+      ]}
     >
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            // marginTop:
+            //   Platform.OS !== "ios" && keyboardHeight > 0
+            //     ? keyboardHeight - 14
+            //     : 0,
+          },
+        ]}
+      >
         <Text style={styles.headerTitile}>Коментарі</Text>
         <TouchableOpacity
           style={styles.btnLogOut}
@@ -97,41 +119,47 @@ const CommentsScreen = ({ navigation }) => {
           <Feather name="arrow-left" size={24} color="#212121" />
         </TouchableOpacity>
       </View>
-
-      <ScrollView
-        onLayout={(element) => {
-          listRef.current = element.target;
-        }}
-        style={styles.list}
-      >
-        <View>
-          <Image
-            source={{
-              uri: notes.filter(({ id }) => id === searchId)[0].imageUrl,
-            }}
-            style={[styles.image, { width: 343, height: 240 }]}
-          />
-        </View>
-        {getCommentListLayout}
-      </ScrollView>
       <KeyboardAvoidingView
-        // behavior={"padding"}
-        // enabled={Platform.OS === "ios"}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
       >
+        <ScrollView
+          style={[styles.list]}
+          scrollEnabled
+          onLayout={(element) => {
+            listRef.current = element.target;
+          }}
+        >
+          <View>
+            <Image
+              source={{
+                uri: currentPost.imageUri,
+              }}
+              style={[styles.image, { width: 343, height: 240 }]}
+            />
+          </View>
+          {getCommentListLayout}
+        </ScrollView>
         <View style={styles.footer}>
           <View style={styles.footerWrapper}>
             <TextInput
-              // multiline={true}
-              // textAlignVertical="top"
               style={styles.commentInput}
               placeholder="Коментувати..."
               placeholderTextColor={"#BDBDBD"}
               value={comment}
               onChangeText={setComment}
+              onFocus={listRef.current?.scrollToEnd()}
             />
-            <TouchableOpacity style={styles.btnSubmit} onPress={handleSubmit}>
-              <Ionicons name="arrow-up-circle" size={48} color="#FF6C00" />
+            <TouchableOpacity
+              style={styles.btnSubmit}
+              disabled={!comment}
+              onPress={handleSubmit}
+            >
+              <Ionicons
+                name="arrow-up-circle"
+                size={48}
+                color={comment ? "#FF6C00" : "#F6F6F6"}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -143,7 +171,8 @@ const CommentsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    // height: 500,
+    // justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
   },
@@ -154,6 +183,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#0000004c",
+    // position: "absolute",
+    // zIndex: 10,
   },
   headerTitile: {
     paddingVertical: 11,
@@ -174,6 +205,9 @@ const styles = StyleSheet.create({
   image: { borderRadius: 8, marginTop: 32, marginBottom: 32 },
   list: {
     flex: 1,
+    // height: 300,
+
+    // backgroundColor: "tomato",
   },
   card: { gap: 16, marginBottom: 24 },
   userImage: { borderRadius: 56 },

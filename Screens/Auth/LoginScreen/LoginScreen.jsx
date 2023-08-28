@@ -15,8 +15,11 @@ import { useEffect, useState } from "react";
 import validateForm from "../../../utils/validateForm";
 import validationSchema from "./validationSchema";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
-import { setIsAuth } from "../../../redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAuth } from "../../../redux/auth/authSlice";
+import { signInUserThunk } from "../../../redux/auth/thunk";
+import { ActivityIndicator } from "react-native";
+import { getAuthIsPending } from "../../../redux/auth/selectors";
 
 const LoginScreen = ({ onAuth }) => {
   const navigation = useNavigation();
@@ -29,6 +32,7 @@ const LoginScreen = ({ onAuth }) => {
   const [password, setPassword] = useState("");
   const [currentErrors, setCurrentErrors] = useState({});
   const dispatch = useDispatch();
+  const isLoading = useSelector(getAuthIsPending);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -61,10 +65,10 @@ const LoginScreen = ({ onAuth }) => {
       validationSchema,
       setCurrentErrors,
       (data) => {
-        console.log(data);
-        console.log("Переход на Home");
+        // console.log(data);
+        // console.log("Переход на Home");
+        dispatch(signInUserThunk({ email: login, password }));
         reset();
-        dispatch(setIsAuth(true));
       }
     );
   };
@@ -92,8 +96,9 @@ const LoginScreen = ({ onAuth }) => {
                     : "#F6F6F6",
                 },
               ]}
-              placeholder="Логін"
+              placeholder="E-mail"
               placeholderTextColor={"#BDBDBD"}
+              keyboardType="email-address"
               onFocus={() => {
                 setLoginIsActive(true);
                 setCurrentErrors({});
@@ -157,6 +162,13 @@ const LoginScreen = ({ onAuth }) => {
       <View style={styles.btnWrapper}>
         <TouchableOpacity style={[styles.btn]} onPress={handleSubmit}>
           <Text style={styles.btnText}>Увійти</Text>
+          {isLoading && (
+            <ActivityIndicator
+              style={styles.loginLoader}
+              size="small"
+              color="#BDBDBD"
+            />
+          )}
         </TouchableOpacity>
         <View style={styles.toSignUpWrapper}>
           <Text style={[styles.toSignUpLabel]}>Немає акаунту?</Text>
@@ -300,6 +312,10 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     textDecorationLine: "underline",
     color: "#1B4371",
+  },
+  loginLoader: {
+    position: "absolute",
+    right: 10,
   },
   errorText: {
     fontFamily: "Roboto-Regular",
