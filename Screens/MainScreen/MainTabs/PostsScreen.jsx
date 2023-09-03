@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { PublicationCard } from "../../../Components/PublicationCard";
@@ -17,7 +18,6 @@ import { signOutUserThunk } from "../../../redux/auth/thunk";
 import { getUserProfile } from "../../../redux/auth/selectors";
 import { getPosts } from "../../../redux/posts/selectors";
 import { clearPosts } from "../../../redux/posts/postsSlice";
-
 const PostsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const posts = useSelector(getPosts);
@@ -27,6 +27,7 @@ const PostsScreen = ({ navigation }) => {
     displayName: userName,
     photoURL: userImageUri,
   } = useSelector(getUserProfile);
+
   return (
     <SafeAreaView
       style={[styles.container, { paddingTop: Platform.OS === "ios" ? 0 : 30 }]}
@@ -44,19 +45,20 @@ const PostsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.main}>
-        <ScrollView style={styles.listView}>
-          <View style={styles.userCard}>
-            <Image
-              source={{ uri: userImageUri }}
-              style={[styles.image, { width: 60, height: 60 }]}
-            />
-            <View>
-              <Text style={styles.userName}>{userName}</Text>
-              <Text style={styles.userEmail}>{userEmail}</Text>
-            </View>
+        <View style={styles.userCard}>
+          <Image
+            source={{ uri: userImageUri }}
+            style={[styles.image, { width: 60, height: 60 }]}
+          />
+          <View>
+            <Text style={styles.userName}>{userName}</Text>
+            <Text style={styles.userEmail}>{userEmail}</Text>
           </View>
-          {posts.map(
-            ({
+        </View>
+        <FlatList
+          data={posts}
+          renderItem={({
+            item: {
               id,
               title,
               imageUri,
@@ -65,27 +67,27 @@ const PostsScreen = ({ navigation }) => {
               location,
               likes,
               uid,
-            }) => (
-              <PublicationCard
-                key={id}
-                id={id}
-                title={title}
-                imageUrl={imageUri}
-                geoPosition={geoPosition}
-                commentsCount={comments.length}
-                likesCount={likes.length}
-                location={location}
-                likes={likes}
-                uid={uid}
-                messageIcon={{
-                  color: "#BDBDBD",
-                  backgroundColor: "transparent",
-                }}
-                navigation={navigation}
-              />
-            )
+            },
+          }) => (
+            <PublicationCard
+              id={id}
+              title={title}
+              imageUrl={imageUri}
+              geoPosition={geoPosition}
+              commentsCount={comments?.length}
+              likesCount={likes?.length}
+              location={location}
+              likes={likes}
+              uid={uid}
+              messageIcon={{
+                color: "#BDBDBD",
+                backgroundColor: "transparent",
+              }}
+              navigation={navigation}
+            />
           )}
-        </ScrollView>
+          keyExtractor={(item) => item.id}
+        />
       </View>
     </SafeAreaView>
   );

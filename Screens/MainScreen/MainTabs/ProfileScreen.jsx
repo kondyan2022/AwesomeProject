@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  FlatList,
   Image,
   ImageBackground,
   ScrollView,
@@ -134,9 +135,10 @@ const ProfileScreen = ({ navigation, route }) => {
             <Feather name="log-out" size={24} color="#BDBDBD" />
           </TouchableOpacity>
           <Text style={styles.userName}>{displayName}</Text>
-          <ScrollView style={styles.listView}>
-            {userPosts.map(
-              ({
+          <FlatList
+            data={userPosts}
+            renderItem={({
+              item: {
                 id,
                 title,
                 imageUri,
@@ -145,29 +147,27 @@ const ProfileScreen = ({ navigation, route }) => {
                 likes,
                 location,
                 uid,
-              }) => {
-                return (
-                  <PublicationCard
-                    key={id}
-                    id={id}
-                    title={title}
-                    imageUrl={imageUri}
-                    geoPosition={geoPosition.split(" ").slice(-1)}
-                    commentsCount={comments.length}
-                    likesCount={likes.length}
-                    location={location}
-                    likes={likes}
-                    uid={uid}
-                    messageIcon={{
-                      color: "#FF6C00",
-                    }}
-                    thumbsIcon={{ color: "#FF6C00" }}
-                    navigation={navigation}
-                  />
-                );
-              }
+              },
+            }) => (
+              <PublicationCard
+                key={id}
+                id={id}
+                title={title}
+                imageUrl={imageUri}
+                geoPosition={geoPosition.split(" ").slice(-1)}
+                commentsCount={comments.length}
+                likesCount={likes.length}
+                location={location}
+                likes={likes}
+                uid={uid}
+                messageIcon={{
+                  color: "#FF6C00",
+                }}
+                thumbsIcon={{ color: "#FF6C00" }}
+                navigation={navigation}
+              />
             )}
-          </ScrollView>
+          />
         </View>
       </ImageBackground>
     </View>

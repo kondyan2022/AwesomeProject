@@ -20,7 +20,7 @@ export const PublicationCard = ({
   likes,
 }) => {
   const dispatch = useDispatch();
-  const isLiked = likes.includes(auth.currentUser.uid);
+  const isLiked = likes?.includes(auth.currentUser.uid);
   return (
     <View style={styles.container}>
       <Image
