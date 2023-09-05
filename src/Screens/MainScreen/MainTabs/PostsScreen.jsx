@@ -17,6 +17,7 @@ import { signOutUserThunk } from "../../../redux/auth/thunk";
 import { getUserProfile } from "../../../redux/auth/selectors";
 import { getPosts } from "../../../redux/posts/selectors";
 import { clearPosts } from "../../../redux/posts/postsSlice";
+
 const PostsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const posts = useSelector(getPosts);
@@ -47,10 +48,10 @@ const PostsScreen = ({ navigation }) => {
         <FlatList
           ListHeaderComponent={
             <View style={styles.userCard}>
-              <Image
+              {userImageUri && <Image
                 source={{ uri: userImageUri }}
                 style={[styles.image, { width: 60, height: 60 }]}
-              />
+              />}
               <View>
                 <Text style={styles.userName}>{userName}</Text>
                 <Text style={styles.userEmail}>{userEmail}</Text>

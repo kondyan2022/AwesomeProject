@@ -69,10 +69,12 @@ const CommentsScreen = ({ navigation, route }) => {
                 { flexDirection: index % 2 === 0 ? "row" : "row-reverse" },
               ]}
             >
-              <Image
-                source={{ uri: elem.userImageUrl }}
-                style={[styles.userImage, { width: 28, height: 28 }]}
-              />
+              {elem.userImageUrl && (
+                <Image
+                  source={{ uri: elem.userImageUrl }}
+                  style={[styles.userImage, { width: 28, height: 28 }]}
+                />
+              )}
 
               <View
                 style={[styles.textWrapper, { width: 299, height: "auto" }]}
