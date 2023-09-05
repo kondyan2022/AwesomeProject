@@ -80,10 +80,7 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
       validationSchema,
       setCurrentErrors,
       (data) => {
-        // console.log({ ...data, imageUserUri });
-        // reset();
         dispatch(signUpUserThunk({ login, email, password, imageUserUri }));
-        // dispatch(setIsAuth(true));
       }
     );
   };
@@ -273,7 +270,6 @@ const RegistrationScreen = ({ onAuth, route, navigation }) => {
         <TouchableOpacity
           style={[styles.btnToLogin]}
           onPress={() => {
-            // console.log("Перехід до Логін");
             navigation.navigate("Login");
           }}
         >

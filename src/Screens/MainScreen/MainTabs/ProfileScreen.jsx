@@ -38,12 +38,6 @@ const ProfileScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const posts = useSelector(getPosts);
 
-  // console.log("profile=>", posts);
-  // useEffect(() => {
-  //   if (route.params?.imageUri) {
-  //     setImageUserUri(route.params.imageUri);
-  //   }
-  // }, [route]);
   const userPosts = useMemo(
     () => posts.filter((post) => post.uid === auth.currentUser.uid),
     [auth.currentUser.uid, posts]

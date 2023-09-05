@@ -44,9 +44,6 @@ export const PublicationCard = ({
             <TouchableOpacity
               disabled={uid === auth.currentUser.uid}
               onPress={() => {
-                // console.log(uid, auth.currentUser.uid);
-                // console.log("like press!!! isLiked", isLiked);
-
                 dispatch(
                   isLiked
                     ? removeLikeThunk({ postId: id, uid: auth.currentUser.uid })

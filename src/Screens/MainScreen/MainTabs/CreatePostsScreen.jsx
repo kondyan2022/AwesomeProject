@@ -57,15 +57,9 @@ const CreatePostsScreen = ({ navigation, route }) => {
         }
         if (imageUri) {
           let location = await Location.getLastKnownPositionAsync({});
-          // console.log("lst khown", location);
           location = (await Location.getCurrentPositionAsync({})) ?? location;
-          // console.log("current", location);
           if (location) {
             const { coords } = location;
-            // {
-            // latitude: location.coords.latitude,
-            // longitude: location.coords.longitude,
-            // };
             let geo = await Location.reverseGeocodeAsync(coords);
             setLocation(coords);
             setGeocode(geo);
@@ -124,7 +118,6 @@ const CreatePostsScreen = ({ navigation, route }) => {
           date: date,
         })
       ).unwrap();
-      // console.log("Принято");
       reset();
       navigation.goBack();
     } catch (error) {

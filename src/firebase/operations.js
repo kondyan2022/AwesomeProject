@@ -6,7 +6,7 @@ export const createPost = async ({
 }) => {
   try {
     const currentDate = Timestamp.fromDate(new Date.now());
-    clg("beforeFunction");
+
     const newPostRef = await setDoc(doc(db, "posts", `${currentDate}`), {
       title,
       imageUrl,
@@ -16,7 +16,6 @@ export const createPost = async ({
       likes: [],
       comments: [],
     });
-    // console.log("operatiom", newPostRef);
     return newPostRef;
   } catch (error) {
     console.log("Creat post operation ", error);

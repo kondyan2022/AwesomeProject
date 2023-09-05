@@ -19,17 +19,14 @@ export const addPostThunk = createAsyncThunk(
   async ({ title, imageUrl, geoPosition, location, date }, thunkApi) => {
     try {
       const blobFile = await uriToBlob(imageUrl);
-      // console.log("load image");
       const user = auth.currentUser;
       const postId = `${date}_${user.uid}`;
       const pathStore = `images/${postId}.jpg`;
-      // console.log("Storage path", pathStore);
       const imageRef = ref(storage, pathStore);
       await uploadBytes(imageRef, blobFile, {
         contentType: "image/jpeg",
       });
       const imageUri = await getDownloadURL(imageRef);
-      // console.log("thunk", imageUri);
       const newPostData = {
         id: postId,
         uid: user.uid,
@@ -45,7 +42,6 @@ export const addPostThunk = createAsyncThunk(
 
       return;
     } catch (error) {
-      // console.log("Thunk AddPost: ", error);
       return thunkApi.rejectWithValue(error.message);
     }
   }
@@ -55,18 +51,10 @@ export const addCommentToPostThunk = createAsyncThunk(
   "posts/addComment",
   async ({ postId, uid, userImageUrl, date, comment }, thunkApi) => {
     try {
-      // console.log("addCommentToPostThunk", {
-      //   postId,
-      //   uid,
-      //   userImageUrl,
-      //   date,
-      //   comment,
-      // });
       await updateDoc(doc(db, "posts", `${postId}`), {
         comments: arrayUnion({ uid, userImageUrl, date, comment }),
       });
     } catch (error) {
-      console.log("Thunk Add comment: ", error);
       return thunkApi.rejectWithValue(error.message);
     }
   }
@@ -76,12 +64,10 @@ export const addLikeThunk = createAsyncThunk(
   "posts/addLike",
   async ({ postId, uid }, thunkApi) => {
     try {
-      // console.log("Add like", uid);
       await updateDoc(doc(db, "posts", `${postId}`), {
         likes: arrayUnion(uid),
       });
     } catch (error) {
-      // console.log("Thunk add Like: ", error);
       return thunkApi.rejectWithValue(error.message);
     }
   }
@@ -91,12 +77,10 @@ export const removeLikeThunk = createAsyncThunk(
   "posts/removeLike",
   async ({ postId, uid }, thunkApi) => {
     try {
-      // console.log("remove like", uid);
       await updateDoc(doc(db, "posts", `${postId}`), {
         likes: arrayRemove(uid),
       });
     } catch (error) {
-      // console.log("Thunk remove Like: ", error);
       return thunkApi.rejectWithValue(error.message);
     }
   }

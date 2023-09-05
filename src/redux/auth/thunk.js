@@ -22,14 +22,13 @@ export const signUpUserThunk = createAsyncThunk(
 
       if (imageUserUri) {
         const blobFile = await uriToBlob(imageUserUri);
-        // console.log("load image");
 
         const avatarRef = ref(storage, `${user.uid}/avatar.jpg`);
         await uploadBytes(avatarRef, blobFile, {
           contentType: "image/jpeg",
         });
         const proceedPhoto = await getDownloadURL(avatarRef);
-        // console.log("thunk", proceedPhoto);
+
         await updateProfile(user, {
           displayName: login,
           email,
@@ -45,7 +44,6 @@ export const signUpUserThunk = createAsyncThunk(
       }
       return thunkApi.fulfillWithValue({ email, displayName: login });
     } catch (error) {
-      console.log(error);
       return thunkApi.rejectWithValue(error.message);
     }
   }
@@ -61,7 +59,6 @@ export const signInUserThunk = createAsyncThunk(
         password
       );
     } catch (error) {
-      console.log(error);
       return thunkApi.rejectWithValue(error.message);
     }
   }
@@ -73,7 +70,6 @@ export const signOutUserThunk = createAsyncThunk(
     try {
       await signOut(auth);
     } catch (error) {
-      console.log(error);
       return thunkApi.rejectWithValue(error.message);
     }
   }

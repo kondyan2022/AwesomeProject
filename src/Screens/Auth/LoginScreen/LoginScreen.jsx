@@ -70,7 +70,6 @@ const LoginScreen = ({ onAuth }) => {
         dispatch(signInUserThunk({ email: login, password }))
           .unwrap()
           .catch((e) => {
-            console.log("Помилка аутентіфікації!");
             Toast.show({ type: "error", text1: "Помилка аутентіфікації!" });
           });
         // reset();
@@ -181,7 +180,6 @@ const LoginScreen = ({ onAuth }) => {
           <TouchableOpacity
             style={[styles.btnToSignUp]}
             onPress={() => {
-              console.log("Перехід до реєстрації");
               navigation.navigate("Signup");
             }}
           >

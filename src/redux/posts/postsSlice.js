@@ -46,12 +46,10 @@ export const postsSlice = createSlice({
       })
       .addCase(fetchAllThunk.fulfilled, (state, { payload }) => {
         state.isPending = false;
-        // console.log("fetchAllThunk.fulfilled", payload);
         state.posts = payload;
       })
       .addCase(fetchAllThunk.rejected, (state, { payload }) => {
         state.isPending = false;
-
         state.error = payload;
       })
       .addCase(addCommentToPostThunk.pending, (state) => {

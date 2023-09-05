@@ -127,7 +127,6 @@ const CommentsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     listRef.current?.scrollToEnd();
-    console.log(Platform.OS, "обновил");
   }, [currentPost]);
 
   const handleSubmit = () => {

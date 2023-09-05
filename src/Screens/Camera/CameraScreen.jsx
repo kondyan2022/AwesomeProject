@@ -42,7 +42,6 @@ export default function CameraScreen({ navigation, route }) {
     return <Text>No access to camera</Text>;
   }
   const changeFlash = () => {
-    // console.log(flashMode);
     switch (flashMode) {
       case FlashMode.off:
         setFlashMode(FlashMode.on);
@@ -91,10 +90,7 @@ export default function CameraScreen({ navigation, route }) {
           compress: 0.7,
           format: SaveFormat.JPEG,
         });
-
-        // console.log(imageData.uri);
         const imageLibrary = await MediaLibrary.createAssetAsync(imageData.uri);
-        // console.log(imageLibrary.uri);
         setImageUri(imageLibrary.uri);
       }
     } catch (error) {
