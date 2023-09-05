@@ -9,12 +9,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { Feather, AntDesign } from "@expo/vector-icons";
-import BackgroundImage from "../../../assets/img/bgimage.jpg";
-import { notes, user } from "../../../testdata";
-import { PublicationCard } from "../../../Components/PublicationCard";
 import { useDispatch, useSelector } from "react-redux";
+import { Feather, AntDesign } from "@expo/vector-icons";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { updateProfile } from "firebase/auth";
+
+import BackgroundImage from "../../../../assets/img/bgimage.jpg";
+import { PublicationCard } from "../../../Components/PublicationCard";
 import { setIsAuth, updateUserProfile } from "../../../redux/auth/authSlice";
 import {
   getAuth,
@@ -28,8 +29,6 @@ import { auth, storage } from "../../../firebase/config";
 import { signOutUserThunk } from "../../../redux/auth/thunk";
 import { clearPosts } from "../../../redux/posts/postsSlice";
 import { uriToBlob } from "../../../utils/blobFromPhoto";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { updateProfile } from "firebase/auth";
 
 const ProfileScreen = ({ navigation, route }) => {
   const imageUserUri = useSelector(getUserImageURL);
@@ -150,7 +149,7 @@ const ProfileScreen = ({ navigation, route }) => {
               },
             }) => (
               <PublicationCard
-                key={id}
+                // key={id}
                 id={id}
                 title={title}
                 imageUrl={imageUri}
@@ -165,6 +164,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 }}
                 thumbsIcon={{ color: "#FF6C00" }}
                 navigation={navigation}
+                keyExtractor={(item) => item.id}
               />
             )}
           />

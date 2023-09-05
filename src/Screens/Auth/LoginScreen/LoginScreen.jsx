@@ -10,16 +10,18 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { useEffect, useState } from "react";
-import validateForm from "../../../utils/validateForm";
-import validationSchema from "./validationSchema";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
+import { ActivityIndicator } from "react-native";
+import BackgroundImage from "../../../../assets/img/bgimage.jpg";
+import validateForm from "../../../utils/validateForm";
+import validationSchema from "./validationSchema";
 import { setIsAuth } from "../../../redux/auth/authSlice";
 import { signInUserThunk } from "../../../redux/auth/thunk";
-import { ActivityIndicator } from "react-native";
 import { getAuthIsPending } from "../../../redux/auth/selectors";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
+import { ErrorToast } from "react-native-toast-message";
 
 const LoginScreen = ({ onAuth }) => {
   const navigation = useNavigation();
@@ -65,16 +67,20 @@ const LoginScreen = ({ onAuth }) => {
       validationSchema,
       setCurrentErrors,
       (data) => {
-        // console.log(data);
-        // console.log("Переход на Home");
-        dispatch(signInUserThunk({ email: login, password }));
-        reset();
+        dispatch(signInUserThunk({ email: login, password }))
+          .unwrap()
+          .catch((e) => {
+            console.log("Помилка аутентіфікації!");
+            Toast.show({ type: "error", text1: "Помилка аутентіфікації!" });
+          });
+        // reset();
       }
     );
   };
 
   return (
     <ImageBackground source={BackgroundImage} style={styles.image}>
+      <Toast config={toastConfig} />
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -196,6 +202,7 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "flex-end",
   },
+  toast: { color: "red" },
   form: {
     resizeMode: "cover",
     position: "relative",
@@ -327,5 +334,28 @@ const styles = StyleSheet.create({
     color: "#ff0000",
   },
 });
+
+const toastConfig = {
+  error: (props) => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 15,
+        color: "red",
+        fontFamily: "Roboto-Regular",
+        fontSize: 16,
+        lineHeight: 19,
+        fontStyle: "normal",
+      }}
+    />
+  ),
+  /*
+    Or create a completely new type - `tomatoToast`,
+    building the layout from scratch.
+
+    I can consume any custom `props` I want.
+    They will be passed when calling the `show` method (see below)
+  */
+};
 
 export default LoginScreen;

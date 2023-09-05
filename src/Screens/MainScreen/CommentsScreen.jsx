@@ -16,17 +16,23 @@ import {
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { FlatList } from "react-native";
+
 import { getPosts } from "../../redux/posts/selectors";
 import { auth } from "../../firebase/config";
 import { addCommentToPostThunk } from "../../redux/posts/thunk";
-// import { useKeyboardHeight } from "../../utils/hookKeyboardHeight";
+import { useKeyboardHeight } from "../../utils/hookKeyboardHeight";
+import { useEffect } from "react";
+import { Platform } from "react-native";
 
 const CommentsScreen = ({ navigation, route }) => {
   const posts = useSelector(getPosts);
   const dispatch = useDispatch();
   const [comment, setComment] = useState("");
   const listRef = useRef(null);
-  // const keyboardHeight = useKeyboardHeight();
+  const inputRef = useRef(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(255);
+  const [isInputCommentFocused, setIsInputCommentFocused] = useState(false);
 
   const currentPost = useMemo(
     () => posts.filter(({ id }) => id === route.params.id)[0],
@@ -34,44 +40,95 @@ const CommentsScreen = ({ navigation, route }) => {
   );
 
   const getCommentListLayout = useMemo(
-    () =>
-      currentPost.comments.map((elem, index) => (
-        <View
-          key={index}
-          style={[
-            styles.card,
-            { flexDirection: index % 2 === 0 ? "row" : "row-reverse" },
-          ]}
-        >
-          <Image
-            source={{ uri: elem.userImageUrl }}
-            style={[styles.userImage, { width: 28, height: 28 }]}
-          />
-
-          <View style={[styles.textWrapper, { width: 299, height: "auto" }]}>
-            <Text style={styles.text}>{elem.comment}</Text>
-            <Text
+    () => (
+      <FlatList
+        style={{ flex: 1 }}
+        onLayout={(element) => {
+          listRef.current = element.target;
+        }}
+        ListHeaderComponent={
+          <View>
+            <Image
+              source={{
+                uri: currentPost.imageUri,
+              }}
+              style={[styles.image, { width: 343, height: 240 }]}
+            />
+          </View>
+        }
+        // ListFooterComponent={<View></View>}
+        // ListFooterComponentStyle={{ height: 5 }}
+        data={currentPost.comments}
+        renderItem={({ item: elem, index }) => {
+          // console.log(elem);
+          return (
+            <View
+              key={index}
               style={[
-                styles.date,
-                {
-                  alignSelf: index % 2 === 0 ? "flex-end" : "flex-start",
-                },
+                styles.card,
+                { flexDirection: index % 2 === 0 ? "row" : "row-reverse" },
               ]}
             >
-              {new Date(elem.date).toLocaleString("uk-UA", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
-        </View>
-      )),
+              <Image
+                source={{ uri: elem.userImageUrl }}
+                style={[styles.userImage, { width: 28, height: 28 }]}
+              />
+
+              <View
+                style={[styles.textWrapper, { width: 299, height: "auto" }]}
+              >
+                <Text style={styles.text}>{elem.comment}</Text>
+                <Text
+                  style={[
+                    styles.date,
+                    {
+                      alignSelf: index % 2 === 0 ? "flex-end" : "flex-start",
+                    },
+                  ]}
+                >
+                  {new Date(elem.date).toLocaleString("uk-UA", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour12: false,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </Text>
+              </View>
+            </View>
+          );
+        }}
+      />
+    ),
     [currentPost]
   );
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => {
+        const hight = Math.round(e.endCoordinates.height);
+        listRef.current.scrollToEnd();
+        if (hight && keyboardHeight !== hight) {
+          setKeyboardHeight(hight);
+        }
+      }
+    );
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      inputRef.current.blur();
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    listRef.current?.scrollToEnd();
+    console.log(Platform.OS, "обновил");
+  }, [currentPost]);
 
   const handleSubmit = () => {
     dispatch(
@@ -102,6 +159,7 @@ const CommentsScreen = ({ navigation, route }) => {
         style={[
           styles.header,
           {
+            position: "relative",
             // marginTop:
             //   Platform.OS !== "ios" && keyboardHeight > 0
             //     ? keyboardHeight - 14
@@ -120,35 +178,37 @@ const CommentsScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "undefined"}
+        style={
+          Platform.OS === "ios"
+            ? {
+                flex: 1,
+              }
+            : {
+                height:
+                  Dimensions.get("screen").height -
+                  144 -
+                  (isInputCommentFocused ? keyboardHeight : 0),
+              }
+        }
       >
-        <ScrollView
-          style={[styles.list]}
-          scrollEnabled
-          onLayout={(element) => {
-            listRef.current = element.target;
-          }}
-        >
-          <View>
-            <Image
-              source={{
-                uri: currentPost.imageUri,
-              }}
-              style={[styles.image, { width: 343, height: 240 }]}
-            />
-          </View>
-          {getCommentListLayout}
-        </ScrollView>
+        {getCommentListLayout}
         <View style={styles.footer}>
           <View style={styles.footerWrapper}>
             <TextInput
+              onLayout={(element) => {
+                inputRef.current = element.target;
+              }}
               style={styles.commentInput}
               placeholder="Коментувати..."
               placeholderTextColor={"#BDBDBD"}
               value={comment}
               onChangeText={setComment}
-              onFocus={listRef.current?.scrollToEnd()}
+              onFocus={() => {
+                setIsInputCommentFocused(true);
+                listRef.current?.scrollToEnd();
+              }}
+              onBlur={() => setIsInputCommentFocused(false)}
             />
             <TouchableOpacity
               style={styles.btnSubmit}
@@ -171,8 +231,6 @@ const CommentsScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // height: 500,
-    // justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
   },
@@ -183,8 +241,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#0000004c",
-    // position: "absolute",
-    // zIndex: 10,
   },
   headerTitile: {
     paddingVertical: 11,
@@ -205,9 +261,6 @@ const styles = StyleSheet.create({
   image: { borderRadius: 8, marginTop: 32, marginBottom: 32 },
   list: {
     flex: 1,
-    // height: 300,
-
-    // backgroundColor: "tomato",
   },
   card: { gap: 16, marginBottom: 24 },
   userImage: { borderRadius: 56 },
@@ -236,7 +289,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     paddingTop: 8,
-    backgroundColor: "#",
+    backgroundColor: "#fff",
   },
   footerWrapper: {},
   commentInput: {

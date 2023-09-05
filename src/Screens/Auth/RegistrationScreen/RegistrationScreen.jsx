@@ -12,18 +12,19 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import BackgroundImage from "../../../assets/img/bgimage.jpg";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
+import BackgroundImage from "../../../../assets/img/bgimage.jpg";
 import validationSchema from "./validationSchema";
 import validateForm from "../../../utils/validateForm";
 
-import { useDispatch, useSelector } from "react-redux";
 import { setIsAuth } from "../../../redux/auth/authSlice";
 import { signUpUserThunk } from "../../../redux/auth/thunk";
 import { getAuthIsPending } from "../../../redux/auth/selectors";
 import { uriToBlob } from "../../../utils/blobFromPhoto";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { auth, storage } from "../../../firebase/config";
 
 const RegistrationScreen = ({ onAuth, route, navigation }) => {

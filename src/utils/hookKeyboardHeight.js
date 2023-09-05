@@ -7,10 +7,12 @@ export function useKeyboardHeight() {
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
+      // "keyboardWillShow",
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
       (e) => setKeyboardHeight(e.endCoordinates.height)
     );
     const hideSubscription = Keyboard.addListener(
+      // "keyboardWillHide",
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
       () => setKeyboardHeight(0)
     );

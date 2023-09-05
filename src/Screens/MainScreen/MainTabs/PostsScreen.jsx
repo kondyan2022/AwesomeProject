@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { PublicationCard } from "../../../Components/PublicationCard";
-import { notes, user } from "../../../testdata";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsAuth } from "../../../redux/auth/authSlice";
 import { signOut } from "firebase/auth";
@@ -45,17 +44,19 @@ const PostsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.main}>
-        <View style={styles.userCard}>
-          <Image
-            source={{ uri: userImageUri }}
-            style={[styles.image, { width: 60, height: 60 }]}
-          />
-          <View>
-            <Text style={styles.userName}>{userName}</Text>
-            <Text style={styles.userEmail}>{userEmail}</Text>
-          </View>
-        </View>
         <FlatList
+          ListHeaderComponent={
+            <View style={styles.userCard}>
+              <Image
+                source={{ uri: userImageUri }}
+                style={[styles.image, { width: 60, height: 60 }]}
+              />
+              <View>
+                <Text style={styles.userName}>{userName}</Text>
+                <Text style={styles.userEmail}>{userEmail}</Text>
+              </View>
+            </View>
+          }
           data={posts}
           renderItem={({
             item: {
